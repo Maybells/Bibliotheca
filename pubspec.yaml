@@ -78,3 +78,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+shared_preferences: '>=0.5.y+x <2.0.0'

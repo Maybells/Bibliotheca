@@ -324,7 +324,7 @@ class Biblion{
   }
 }
 
-class FileLoader{
+class FileLoader {
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
