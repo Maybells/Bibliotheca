@@ -13,31 +13,31 @@ class ViewerWidget extends StatefulWidget{
 }
 
 class _MyViewerWidgetState extends State<ViewerWidget>{
-  int pages = 910;
+  int _pages = 1;
   bool _searching = false;
-  List<String> searches;
-  PageController controller;
-  TextEditingController textController;
+  List<String> _searches;
+  PageController _controller;
+  TextEditingController _textController;
   Biblion _biblion;
   String _currentBiblion;
 
   @override
   initState() {
     super.initState();
-    controller = new PageController(
+    _controller = new PageController(
       initialPage: 0,
       keepPage: false,
       viewportFraction: 1,
     );
-    textController = new TextEditingController();
+    _textController = new TextEditingController();
     _biblion = null;
-    searches = new List();
+    _searches = new List();
     _loadBiblion("Meletontas");
   }
 
   @override
   dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -66,7 +66,7 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
                       maxLines: 1,
                       minLines: 1,
                       style: TextStyle(fontSize: 18.0),
-                      controller: textController,
+                      controller: _textController,
                       onSubmitted: (text) {
                         setState(() {
                           _searching = true;
@@ -108,6 +108,7 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
         .loadString('lib/assets/$name.json');
     setState(() {
       _biblion = new Biblion(contents);
+      _pages = _biblion.numPages();
     });
   }
 
@@ -120,14 +121,14 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
   void _gotoPage(int page) {
     page--;
     if (page < 0) page = 0;
-    if (page >= pages) page = pages - 1;
+    if (page >= _pages) page = _pages - 1;
     print("Going to " + page.toString());
-    controller.jumpToPage(page);
+    _controller.jumpToPage(page);
   }
 
   void _searchFor(String input, bool saveSearch) async {
     if(saveSearch) {
-      searches.insert(0, input);
+      _searches.insert(0, input);
     }
     _gotoPage(await _biblion.search(input));
     setState(() {
@@ -139,7 +140,7 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
     if (_biblion != null) {
       _searchFor(search, true);
     }
-    textController.clear();
+    _textController.clear();
   }
 
   _changeBook(String to){
@@ -164,12 +165,12 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
             minScale: PhotoViewComputedScale.contained * 1.0,
           );
         },
-        itemCount: pages,
+        itemCount: _pages,
         loadingChild: Center(
           child: CircularProgressIndicator(),
         ),
         backgroundDecoration: new BoxDecoration(color: Colors.white),
-        pageController: controller,
+        pageController: _controller,
       );
     } else {
       return Center(
@@ -212,22 +213,22 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
   }
 
   _showSearchHistory(BuildContext context) {
-    if (searches.isNotEmpty) {
+    if (_searches.isNotEmpty) {
       SimpleDialog dialog = SimpleDialog(
         title: const Text('Search History'),
         children: <Widget>[
           Container(
-            height: min(searches.length * 50.0, 300),
+            height: min(_searches.length * 50.0, 300),
             width: 300.0,
             child: ListView.builder(
-                itemCount: searches.length,
+                itemCount: _searches.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
                     height: 50,
                     child: SimpleDialogOption(
-                      child: Text(searches.elementAt(index)),
+                      child: Text(_searches.elementAt(index)),
                       onPressed: () {
-                        _searchFor(searches.elementAt(index), false);
+                        _searchFor(_searches.elementAt(index), false);
                         Navigator.of(context).pop();
                       },
                     ),

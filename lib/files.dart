@@ -50,7 +50,7 @@ class Biblion{
   }
 
   String _intToDigits(int num){
-    int digits = _numPages().toString().length;
+    int digits = numPages().toString().length;
     String out = num.toString();
     while(out.length < digits){
       out = "0" + out;
@@ -58,7 +58,7 @@ class Biblion{
     return out;
   }
 
-  int _numPages(){
+  int numPages(){
     return pages["pages"].length;
   }
 
@@ -81,9 +81,9 @@ class Biblion{
   int _doCommand(String input){
     String command = input.substring(1);
     if(command == 'r' || command == 'rand' || command == 'random'){
-      return Random.secure().nextInt(_numPages())+1;
+      return Random.secure().nextInt(numPages())+1;
     }else if(command == 'last' || command == 'l'){
-      return _numPages();
+      return numPages();
     }else if(command == 'first' || command == 'f'){
       return 1;
     } else if(isNumeric(command)){
@@ -285,7 +285,7 @@ class Biblion{
 
   _dictionarySearch(String input, [int lower = 1, int upper = -1]){
     if(upper == -1){
-      upper = _numPages();
+      upper = numPages();
     }
     if(lower >= upper){
       return lower + 1;
