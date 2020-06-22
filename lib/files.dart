@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
@@ -8,8 +9,13 @@ import "package:unorm_dart/unorm_dart.dart" as unorm;
 enum Language{
   English,
   Latin,
-  AncientGreek,
-  Katharevousa
+  Greek
+}
+
+extension ParseToString on Language {
+  String getString(){
+    return this.toString().split('.').last;
+  }
 }
 
 bool isNumeric(String s) {
@@ -23,30 +29,37 @@ class Biblion{
   String name;
   String id;
   Language inLang;
-  Language outLang;
   Language inType;
   Map pages;
+  bool vu;
+  bool ji;
 
-  Biblion(String input){
+  Biblion(String id, String input){
+    this.id = id;
     pages = new Map();
     pages = jsonDecode(input);
     _loadMetadata();
   }
 
   void _loadMetadata(){
-    id = pages["metadata"]["id"];
-    String intype = pages["metadata"]["inType"];
+    String intype = pages["metadata"]["inLang"];
     switch(intype){
       case "English":
-        inType = Language.English;
+        inLang = Language.English;
+        inType = Language.Latin;
         break;
-      case "Greek":
-        inType = Language.AncientGreek;
+      case "Latin":
+        inLang = Language.Latin;
+        inType = Language.Latin;
         break;
       default:
-        inType = Language.English;
+        inLang = Language.Greek;
+        inType = Language.Greek;
         break;
     }
+
+    vu = pages['metadata']['vu'] == 'true';
+    ji = pages['metadata']['ji'] == 'true';
   }
 
   String _intToDigits(int num){
@@ -272,15 +285,23 @@ class Biblion{
     input = input.replaceAll(r"[\p{InCombiningDiacriticalMarks}]", "");
     switch(inType){
       case Language.English:
-        return _toEnglish(input);
+        input = _toEnglish(input);
         break;
-      case Language.AncientGreek:
-        return _toGreek(input);
+      case Language.Greek:
+        input = _toGreek(input);
         break;
       default:
-        return input;
         break;
     }
+
+    if(vu){
+      input = input.replaceAll('v', 'u');
+    }
+    if(ji){
+      input = input.replaceAll('j', 'i');
+    }
+
+    return input;
   }
 
   _dictionarySearch(String input, [int lower = 1, int upper = -1]){
@@ -320,23 +341,23 @@ class Biblion{
 
   String getUrl(int page){
     String filename =_intToDigits(page);
-    return 'https://firebasestorage.googleapis.com/v0/b/bibliotheca-cd54e.appspot.com/o/$id%2F$filename.png?alt=media';
+    return 'http://assets.bibliothecauraniae.com/$id/$filename.png?i=1';
   }
 }
 
 class FileLoader {
-  Future<String> get _localPath async {
+  static Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
     return directory.path;
   }
 
-  Future<File> _localFile(String name) async {
+  static Future<File> _localFile(String name) async {
     final path = await _localPath;
     return File('$path/$name.json');
   }
 
-  Future<String> readFile(String name) async {
+  static Future<String> readFile(String name) async {
     try {
       final file = await _localFile(name);
 
@@ -346,14 +367,19 @@ class FileLoader {
       return contents;
     } catch (e) {
       // If encountering an error, return 0
+      print(e);
       return null;
     }
   }
 
-  Future<File> writeFile(String string) async {
+  static Future<File> writeFile(String string) async {
     final file = await _localFile(string);
 
     // Write the file
     return file.writeAsString(string);
+  }
+
+  static Future<String> loadJSON(String name) async {
+    return await rootBundle.loadString('lib/assets/$name.json');
   }
 }

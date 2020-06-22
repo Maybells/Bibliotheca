@@ -6,33 +6,43 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import 'files.dart';
+import 'metadata.dart';
 
-class ViewerWidget extends StatefulWidget{
+class ViewerWidget extends StatefulWidget {
+  Map<Language, List<String>> _history = _initializeHistory();
+  String _biblionID = 'MiddleLiddell';
+
   @override
   _MyViewerWidgetState createState() => _MyViewerWidgetState();
+
+  static Map<Language, List<String>> _initializeHistory(){
+    Map<Language, List<String>> history = {};
+    history[Language.English] = [];
+    history[Language.Latin] = [];
+    history[Language.Greek] = [];
+    return history;
+  }
 }
 
-class _MyViewerWidgetState extends State<ViewerWidget>{
+class _MyViewerWidgetState extends State<ViewerWidget> {
   int _pages = 1;
   bool _searching = false;
-  List<String> _searches;
   PageController _controller;
   TextEditingController _textController;
   Biblion _biblion;
-  String _currentBiblion;
+  Language _biblionLang;
 
   @override
   initState() {
     super.initState();
     _controller = new PageController(
       initialPage: 0,
-      keepPage: false,
+      keepPage: true,
       viewportFraction: 1,
     );
     _textController = new TextEditingController();
     _biblion = null;
-    _searches = new List();
-    _loadBiblion("Meletontas");
+    _loadBiblion("MiddleLiddell");
   }
 
   @override
@@ -103,13 +113,25 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
   }
 
   void _loadBiblion(String name) async {
-    _currentBiblion = name;
-    String contents = await DefaultAssetBundle.of(context)
-        .loadString('lib/assets/$name.json');
+    print("Loading to " + name);
+    String contents = await FileLoader.loadJSON(name);
     setState(() {
-      _biblion = new Biblion(contents);
+      _biblion = new Biblion(name, contents);
       _pages = _biblion.numPages();
+      _biblionLang = _biblion.inLang;
+      if(_getHistory().isNotEmpty){
+        _searchFor(_getHistory().first, false);
+      }else if(_controller.hasClients) {
+        _gotoPage(1);
+      }
     });
+  }
+
+  void _addSearchToHistory(String search){
+    widget._history[_biblionLang].insert(0, search);
+  }
+  List<String> _getHistory(){
+    return widget._history[_biblionLang];
   }
 
   String _getImageUrl(int page) {
@@ -127,8 +149,8 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
   }
 
   void _searchFor(String input, bool saveSearch) async {
-    if(saveSearch) {
-      _searches.insert(0, input);
+    if (saveSearch) {
+      _addSearchToHistory(input);
     }
     _gotoPage(await _biblion.search(input));
     setState(() {
@@ -143,9 +165,8 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
     _textController.clear();
   }
 
-  _changeBook(String to){
+  _changeBook(String to) {
     setState(() {
-      _currentBiblion = to;
       _loadBiblion(to);
     });
   }
@@ -161,7 +182,7 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
                 cacheRule: CacheRule(maxAge: const Duration(days: 7)),
                 timeoutDuration: Duration(minutes: 1)),
             initialScale: 0.0,
-            maxScale: PhotoViewComputedScale.contained * 2.0,
+            maxScale: PhotoViewComputedScale.contained * 4.0,
             minScale: PhotoViewComputedScale.contained * 1.0,
           );
         },
@@ -179,56 +200,54 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
     }
   }
 
-  _showBookPicker(BuildContext context){
-    Widget optionOne = SimpleDialogOption(
-      child: const Text('Liddell-Scott'),
-      onPressed: () {
-        _changeBook('Liddell-Scott');
-        Navigator.of(context).pop();
-      },
-    );
-    Widget optionTwo = SimpleDialogOption(
-      child: const Text('Meletontas'),
-      onPressed: () {
-        _changeBook('Meletontas');
-        Navigator.of(context).pop();
-      },
-    );
+  _showBookPicker(BuildContext context) {
+    Metadata metadata = new Metadata();
+    metadata.getTitles().then((Map<String, String> books) {
+      SimpleDialog dialog = SimpleDialog(
+        title: const Text('Choose a book'),
+        children: [
+          for (String book in books.keys)
+            SimpleDialogOption(
+                child: Text(
+                  book,
+                  style: new TextStyle(
+                    fontSize: 20.0,
+                  ),
+                ),
+                onPressed: () {
+                  _changeBook(books[book]);
+                  Navigator.of(context).pop();
+                })
+        ],
+      );
 
-    SimpleDialog dialog = SimpleDialog(
-      title: const Text('Choose a book'),
-      children: <Widget>[
-        optionOne,
-        optionTwo,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
-    );
+      // show the dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return dialog;
+        },
+      );
+    });
   }
 
   _showSearchHistory(BuildContext context) {
-    if (_searches.isNotEmpty) {
+    if (_getHistory().isNotEmpty) {
+      String lang = _biblionLang.getString();
       SimpleDialog dialog = SimpleDialog(
-        title: const Text('Search History'),
+        title: Text('Search History ($lang)'),
         children: <Widget>[
           Container(
-            height: min(_searches.length * 50.0, 300),
+            height: min(_getHistory().length * 32.0, 300),
             width: 300.0,
             child: ListView.builder(
-                itemCount: _searches.length,
+                itemCount: _getHistory().length,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
-                    height: 50,
                     child: SimpleDialogOption(
-                      child: Text(_searches.elementAt(index)),
+                      child: Text(_getHistory().elementAt(index)),
                       onPressed: () {
-                        _searchFor(_searches.elementAt(index), false);
+                        _searchFor(_getHistory().elementAt(index), false);
                         Navigator.of(context).pop();
                       },
                     ),
@@ -247,5 +266,4 @@ class _MyViewerWidgetState extends State<ViewerWidget>{
       );
     }
   }
-
 }
