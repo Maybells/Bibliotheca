@@ -29,7 +29,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   int _currentTab = 0;
   final List<Widget> _children = [
 //    ViewerWidget(),
@@ -43,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  _clickTab(int index){
+  _clickTab(int index) {
     setState(() {
       _currentTab = index;
     });
@@ -52,32 +51,43 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentTab,
-        onTap: _clickTab,
-        items: [
-          BottomNavigationBarItem(
-            title: const Text('Viewer'),
-            icon: const Icon(Icons.pageview)
-          ),
-          BottomNavigationBarItem(
-              title: const Text('Books'),
-              icon: const Icon(Icons.library_books)
-          ),
-          BottomNavigationBarItem(
-              title: const Text('Settings'),
-              icon: const Icon(Icons.settings)
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _currentTab,
-        children: _children,
-      )
-    );
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+            centerTitle: true,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Image.asset(
+                    'lib/assets/images/BibliothecaLogo.png',
+                    fit: BoxFit.contain,
+                    height: 24.0,
+                  ),
+                ),
+                Text(
+                  widget.title,
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ],
+            )),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentTab,
+          onTap: _clickTab,
+          items: [
+            BottomNavigationBarItem(
+                title: const Text('Viewer'), icon: const Icon(Icons.pageview)),
+            BottomNavigationBarItem(
+                title: const Text('Books'),
+                icon: const Icon(Icons.library_books)),
+            BottomNavigationBarItem(
+                title: const Text('Settings'),
+                icon: const Icon(Icons.settings)),
+          ],
+        ),
+        body: IndexedStack(
+          index: _currentTab,
+          children: _children,
+        ));
   }
 }
