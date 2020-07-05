@@ -1,9 +1,8 @@
+import 'package:bibliotheca/biblia_widget.dart';
 import 'package:bibliotheca/placeholder_widget.dart';
 import 'package:bibliotheca/viewer_widget.dart';
 
 import 'package:flutter/material.dart';
-
-const String kTestString = 'Test of firebase storage';
 
 void main() => runApp(MyApp());
 
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Bibliotheca'),
     );
   }
 }
@@ -33,8 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _currentTab = 0;
   final List<Widget> _children = [
-    ViewerWidget(),
-    PlaceholderWidget(Colors.lightGreen),
+//    ViewerWidget(),
+    PlaceholderWidget(Colors.blue),
+    BibliaWidget(),
     PlaceholderWidget(Colors.amber),
   ];
 
@@ -74,7 +74,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: _children[_currentTab],
+      body: IndexedStack(
+        index: _currentTab,
+        children: _children,
+      )
     );
   }
 }

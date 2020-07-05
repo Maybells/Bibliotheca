@@ -9,11 +9,11 @@ import 'files.dart';
 import 'metadata.dart';
 
 class ViewerWidget extends StatefulWidget {
-  Map<Language, List<String>> _history = _initializeHistory();
+  final Map<Language, List<String>> _history = _initializeHistory();
   String _biblionID = 'MiddleLiddell';
 
   @override
-  _MyViewerWidgetState createState() => _MyViewerWidgetState();
+  _ViewerWidgetState createState() => _ViewerWidgetState();
 
   static Map<Language, List<String>> _initializeHistory(){
     Map<Language, List<String>> history = {};
@@ -24,7 +24,7 @@ class ViewerWidget extends StatefulWidget {
   }
 }
 
-class _MyViewerWidgetState extends State<ViewerWidget> {
+class _ViewerWidgetState extends State<ViewerWidget> {
   int _pages = 1;
   bool _searching = false;
   PageController _controller;
@@ -42,7 +42,7 @@ class _MyViewerWidgetState extends State<ViewerWidget> {
     );
     _textController = new TextEditingController();
     _biblion = null;
-    _loadBiblion("MiddleLiddell");
+    _loadBiblion(widget._biblionID);
   }
 
   @override
@@ -113,9 +113,9 @@ class _MyViewerWidgetState extends State<ViewerWidget> {
   }
 
   void _loadBiblion(String name) async {
-    print("Loading to " + name);
     String contents = await FileLoader.loadJSON(name);
     setState(() {
+      widget._biblionID = name;
       _biblion = new Biblion(name, contents);
       _pages = _biblion.numPages();
       _biblionLang = _biblion.inLang;
@@ -187,7 +187,7 @@ class _MyViewerWidgetState extends State<ViewerWidget> {
           );
         },
         itemCount: _pages,
-        loadingChild: Center(
+        loadingBuilder: (context, event) => Center(
           child: CircularProgressIndicator(),
         ),
         backgroundDecoration: new BoxDecoration(color: Colors.white),
@@ -201,8 +201,7 @@ class _MyViewerWidgetState extends State<ViewerWidget> {
   }
 
   _showBookPicker(BuildContext context) {
-    Metadata metadata = new Metadata();
-    metadata.getTitles().then((Map<String, String> books) {
+    Metadata.getTitles().then((Map<String, String> books) {
       SimpleDialog dialog = SimpleDialog(
         title: const Text('Choose a book'),
         children: [

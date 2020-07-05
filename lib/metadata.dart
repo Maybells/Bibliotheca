@@ -3,24 +3,27 @@ import 'dart:convert';
 import 'files.dart';
 
 class _MetadataLoader {
-  static Map<String, dynamic> _data = {};
+  static Map<String, BiblionMetadata> _data = {};
 
-  static Future<Map<String, dynamic>> get() async {
+  static Future<Map<String, BiblionMetadata>> get() async {
     if (_data == null || _data.isEmpty) {
-      await _loadData();
+      String json = await _loadData();
+      Map<String, dynamic> metadata = jsonDecode(json);
+      for(String id in metadata.keys){
+        _data[id] = new BiblionMetadata(id, metadata[id]);
+      }
     }
     return _data;
   }
 
-  static _loadData() async {
+  static Future<String> _loadData() async {
     String input = await FileLoader.loadJSON("Metadata");
-    print(input);
-    _data = jsonDecode(input);
+    return input;
   }
 }
 
 class Metadata {
-  Future<Map<String, String>> getTitles() async {
+  static Future<Map<String, String>> getTitles() async {
     Map<String, dynamic> data = await _MetadataLoader.get();
     Map<String, String> out = {};
     for (String id in data.keys) {
@@ -29,16 +32,22 @@ class Metadata {
     return out;
   }
 
-  static String _getName(Map<String, dynamic> dict) {
+  static String _getName(Map<String, String> dict) {
     if (dict.containsKey("shortname")) {
       return dict["shortname"];
     } else {
       return dict["name"];
     }
   }
+
+  static Future<List<BiblionMetadata>> getAll() async {
+    Map data = await _MetadataLoader.get();
+    return List.from(data.values);
+  }
 }
 
 class BiblionMetadata {
+  String id;
   String name;
   String shortname;
   String author;
@@ -47,10 +56,11 @@ class BiblionMetadata {
   String size;
   String _inLang;
   String _outLang;
+  bool active;
 
-  Map<String, String> _data;
+  dynamic _data;
 
-  BiblionMetadata(Map<String, String> data) {
+  BiblionMetadata(this.id, dynamic data) {
     this._data = data;
     name = _read("name");
     shortname = data.containsKey("shortname") ? _read("shortname") : _read("name");
@@ -60,6 +70,7 @@ class BiblionMetadata {
     size = _read("size");
     _inLang = _read("inLang");
     _outLang = _read("outLang");
+    active = true;
   }
 
   String _read(String key){
