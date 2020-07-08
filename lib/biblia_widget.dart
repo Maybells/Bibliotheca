@@ -34,22 +34,27 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
     );
   }
 
-  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta){
-    MyExpansionTile tile = PlatformProvider.of(context).platform == TargetPlatform.iOS ? _iosExpansionTile(context, meta) : _androidExpansionTile(context, meta);
-    return tile;
-  }
-
   MyExpansionTile _androidExpansionTile(BuildContext context, BiblionMetadata meta){
     return MyExpansionTile(
       title: Text(meta.shortname, style: TextStyle(color: Colors.black),),
-      leading: Checkbox(
-          value: meta.active,
-          onChanged: (bool newValue) => this._onChanged(newValue, meta),
-      ),
+//      leading: Checkbox(
+//        value: meta.active,
+//        onChanged: (bool newValue) => this._onChanged(newValue, meta),
+//      ),
       children: <Widget>[
         _displayMeta(context, meta)
       ],
+      titleChevron: true,
+      trailing: Switch(
+        value: meta.active,
+        onChanged: (bool newValue) => this._onChanged(newValue, meta),
+      ),
     );
+  }
+
+  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta){
+    MyExpansionTile tile = PlatformProvider.of(context).platform == TargetPlatform.iOS ? _iosExpansionTile(context, meta) : _androidExpansionTile(context, meta);
+    return tile;
   }
 
   bool _allToggle = true;

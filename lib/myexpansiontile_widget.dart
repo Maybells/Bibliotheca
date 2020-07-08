@@ -23,9 +23,13 @@ class MyExpansionTile extends StatefulWidget{
 class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProviderStateMixin{
   bool _isExpanded = false;
 
+  Tween<double> _halfTween = Tween(begin: 0.0, end: 0.5);
+  Tween<double> _partialTween = Tween(begin: 0.2, end: 1.0);
+
   AnimationController _controller;
   Animation<double> _heightFactor;
   Animation<Color> _borderColor;
+  Animation<Color> _borderBottomColor;
 
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
   static final Animatable<double> _easeOutTween = CurveTween(curve: Curves.easeOut);
@@ -37,7 +41,8 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
     super.initState();
     _controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
     _heightFactor = _controller.drive(_easeInTween);
-    _borderColor = _controller.drive(_borderColorTween.chain(_easeOutTween));
+    _borderColor = _controller.drive(_borderColorTween.chain(_partialTween.chain(_easeOutTween)));
+    _borderBottomColor = _controller.drive(_borderColorTween.chain(_easeOutTween));
 
     _isExpanded = PageStorage.of(context)?.readState(context) as bool ?? false;
     if(_isExpanded){
@@ -54,13 +59,14 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
   @override
   void didChangeDependencies(){
     final ThemeData theme = Theme.of(context);
-    _borderColorTween.end = theme.dividerColor;
-    _borderColorTween.begin = Colors.transparent;
+    _borderColorTween
+      ..begin = Colors.transparent
+      ..end = theme.dividerColor;
     super.didChangeDependencies();
   }
 
   Widget _chevron(){
-    Animation<double> iconTurns = _controller.drive(Tween<double>(begin: 0.0, end: 0.5).chain(_easeInTween));
+    Animation<double> iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: RotationTransition(
@@ -93,12 +99,13 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
 
   Widget _buildChildren(BuildContext context, Widget child) {
     final Color borderSideColor = _borderColor.value ?? Colors.transparent;
+    final Color borderBottomColor = _borderBottomColor.value ?? Colors.transparent;
 
     return Container(
       decoration: BoxDecoration(
           border: Border(
             top: BorderSide(color: borderSideColor),
-            bottom: BorderSide(color: borderSideColor),
+            bottom: BorderSide(color: borderBottomColor),
           )
       ),
       child: Column(
