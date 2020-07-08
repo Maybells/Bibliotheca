@@ -11,40 +11,69 @@ class BibliaWidget extends StatefulWidget {
   State<StatefulWidget> createState() => _BibliaWidgetState();
 }
 
-class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderStateMixin{
+class _BibliaWidgetState extends State<BibliaWidget>
+    with SingleTickerProviderStateMixin {
   List<BiblionMetadata> _metadata;
+  Map<String, List<String>> _presets;
+  bool _allToggle = true;
   bool _downloadOverMobile = false;
 
-  void _onChanged(bool newValue, BiblionMetadata meta){
+  @override
+  initState() {
+    super.initState();
+
+    if (_metadata == null) {
+      Metadata.getAll().then((List<BiblionMetadata> data) {
+        data.sort((a, b) => a.shortname.compareTo(b.shortname));
+        setState(() {
+          _metadata = data;
+        });
+      });
+    }
+
+    _loadPresets();
+  }
+
+  void _loadPresets() {
+    _presets = Map();
+    _presets['Greek'] = ['English-Greek', 'LSK', 'Meletontas', 'MiddleLiddell'];
+    _presets['Latin'] = ['CopCrit', 'Gradus'];
+    _presets['Mix'] = ['Gradus', 'LSK'];
+  }
+
+  void _onChanged(bool newValue, BiblionMetadata meta) {
     setState(() {
       meta.active = newValue;
     });
   }
 
-  MyExpansionTile _iosExpansionTile(BuildContext context, BiblionMetadata meta){
+  MyExpansionTile _iosExpansionTile(
+      BuildContext context, BiblionMetadata meta) {
     return MyExpansionTile(
-      title: Text(meta.shortname, style: TextStyle(color: Colors.black),),
+      title: Text(
+        meta.shortname,
+        style: TextStyle(color: Colors.black),
+      ),
       trailing: CupertinoSwitch(
           value: meta.active,
-          onChanged: (bool newValue) => this._onChanged(newValue, meta)
-      ),
-      children: <Widget>[
-        _displayMeta(context, meta)
-      ],
+          onChanged: (bool newValue) => this._onChanged(newValue, meta)),
+      children: <Widget>[_displayMeta(context, meta)],
       titleChevron: true,
     );
   }
 
-  MyExpansionTile _androidExpansionTile(BuildContext context, BiblionMetadata meta){
+  MyExpansionTile _androidExpansionTile(
+      BuildContext context, BiblionMetadata meta) {
     return MyExpansionTile(
-      title: Text(meta.shortname, style: TextStyle(color: Colors.black),),
+      title: Text(
+        meta.shortname,
+        style: TextStyle(color: Colors.black),
+      ),
 //      leading: Checkbox(
 //        value: meta.active,
 //        onChanged: (bool newValue) => this._onChanged(newValue, meta),
 //      ),
-      children: <Widget>[
-        _displayMeta(context, meta)
-      ],
+      children: <Widget>[_displayMeta(context, meta)],
       titleChevron: true,
       trailing: Switch(
         value: meta.active,
@@ -53,12 +82,13 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
     );
   }
 
-  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta){
-    MyExpansionTile tile = PlatformProvider.of(context).platform == TargetPlatform.iOS ? _iosExpansionTile(context, meta) : _androidExpansionTile(context, meta);
+  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta) {
+    MyExpansionTile tile =
+        PlatformProvider.of(context).platform == TargetPlatform.iOS
+            ? _iosExpansionTile(context, meta)
+            : _androidExpansionTile(context, meta);
     return tile;
   }
-
-  bool _allToggle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -68,24 +98,25 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
           children: <Widget>[
             ButtonBar(
               children: <Widget>[
-                  PlatformButton(
-                    child: Text('Save to Preset'),
-                    onPressed: () {
-
-                    },
-                  ),
-                  PlatformButton(
-                    child: _allToggle ? Text('All Off') : Text('All On'),
-                    onPressed: () => {
-                      setState(() => {
-                        _allToggle = !_allToggle,
-                        _metadata.forEach((meta) {meta.active = _allToggle;})
-                      })
-                    },
-                  ),
-                  PlatformButton(
-                    child: Text('Presets'),
-                  )
+                PlatformButton(
+                  child: Text('Save to Preset'),
+                  onPressed: () {},
+                ),
+                PlatformButton(
+                  child: _allToggle ? Text('All Off') : Text('All On'),
+                  onPressed: () => {
+                    setState(() => {
+                          _allToggle = !_allToggle,
+                          _metadata.forEach((meta) {
+                            meta.active = _allToggle;
+                          })
+                        })
+                  },
+                ),
+                PlatformButton(
+                  child: Text('Presets'),
+                  onPressed: _presets.isEmpty ? null : _showPresetPicker(),
+                )
               ],
             ),
             for (BiblionMetadata meta in _metadata)
@@ -122,8 +153,8 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding:
-            const EdgeInsets.only(top: 6.0, bottom: 8.0, left: 16.0, right: 16.0),
+        padding: const EdgeInsets.only(
+            top: 6.0, bottom: 8.0, left: 16.0, right: 16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -135,13 +166,17 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
             _displayVariable('Pages', meta.pages),
             _displayVariable('Headword Language', meta.inLang),
             _displayVariable('Definition Language', meta.outLang),
-            Center(
-              child: PlatformButton(
-                child: Text('Download (${meta.size})', style: const TextStyle(color: Colors.white),),
-                onPressed: () => {
-                  _constructDownloadWarning(context, meta)
-                },
-                cupertinoFilled: (__, _) => CupertinoFilledButtonData(),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+              child: Center(
+                child: PlatformButton(
+                  child: Text(
+                    'Download (${meta.size})',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () => {_constructDownloadWarning(context, meta)},
+                  cupertinoFilled: (__, _) => CupertinoFilledButtonData(),
+                ),
               ),
             )
           ],
@@ -151,16 +186,17 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
   }
 
   void _constructDownloadWarning(
-      BuildContext context,
-      BiblionMetadata meta) async {
+      BuildContext context, BiblionMetadata meta) async {
     ConnectivityResult connectivityResult =
         await (Connectivity().checkConnectivity());
     String title;
     Widget content;
     List<Widget> actions;
-    if(connectivityResult == ConnectivityResult.wifi || (connectivityResult == ConnectivityResult.mobile && _downloadOverMobile)){
+    if (connectivityResult == ConnectivityResult.wifi ||
+        (connectivityResult == ConnectivityResult.mobile &&
+            _downloadOverMobile)) {
       return;
-    }else if (connectivityResult == ConnectivityResult.mobile) {
+    } else if (connectivityResult == ConnectivityResult.mobile) {
       bool checked = false;
       title = 'Download over Cellular?';
       content = StatefulBuilder(
@@ -207,15 +243,15 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
         PlatformDialogAction(
           child: PlatformText('Download'),
           onPressed: () {
-            if(checked)
-              _downloadOverMobile = true;
+            if (checked) _downloadOverMobile = true;
             Navigator.pop(context);
           },
         ),
       ];
-    }else if(connectivityResult == ConnectivityResult.none){
+    } else if (connectivityResult == ConnectivityResult.none) {
       title = 'Device Offline';
-      content = Text('You must be connected to the internet to download books.');
+      content =
+          Text('You must be connected to the internet to download books.');
       actions = <Widget>[
         PlatformDialogAction(
           child: PlatformText('Ok'),
@@ -238,17 +274,66 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
     );
   }
 
-  @override
-  initState() {
-    super.initState();
+  void _loadPreset(String preset) {
+    setState(() {
+      for (BiblionMetadata meta in _metadata) {
+        meta.active = _presets[preset].contains(meta.id);
+      }
+    });
+  }
 
-    if (_metadata == null) {
-      Metadata.getAll().then((List<BiblionMetadata> data) {
-        data.sort((a, b) => a.shortname.compareTo(b.shortname));
-        setState(() {
-          _metadata = data;
-        });
-      });
-    }
+  Widget _presetsAndroid() {
+    return PlatformAlertDialog(
+      title: Text('Choose a Preset'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (String preset in _presets.keys)
+            ListTile(
+              title: Text(preset, style: const TextStyle(fontSize: 16.0)),
+              onTap: () {
+                Navigator.of(context).pop();
+                _loadPreset(preset);
+              },
+            )
+        ],
+      ),
+    );
+  }
+
+  Widget _presetsIOS() {
+    return CupertinoPicker(
+      backgroundColor: Colors.white,
+      itemExtent: 46.0,
+      children: <Widget>[
+        for (String preset in _presets.keys)
+          Text(
+            preset,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 36.0),
+          )
+      ],
+      onSelectedItemChanged: (item) {
+        _loadPreset(_presets.keys.elementAt(item));
+      },
+    );
+  }
+
+  Function _showPresetPicker() {
+    return () {
+      if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
+        showCupertinoModalPopup(
+            context: context,
+            useRootNavigator: true,
+            semanticsDismissible: true,
+            builder: (_) => Container(
+                  height: 200.0,
+                  child: _presetsIOS(),
+                ));
+        _loadPreset(_presets.keys.first);
+      } else {
+        showPlatformDialog(context: context, builder: (_) => _presetsAndroid());
+      }
+    };
   }
 }
