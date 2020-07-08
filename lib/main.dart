@@ -23,6 +23,10 @@ final materialThemeData = ThemeData(
   canvasColor: Colors.white,
   // Should not be visible
   backgroundColor: Colors.red,
+  buttonTheme: ButtonThemeData(
+    buttonColor: Colors.blue,
+    textTheme: ButtonTextTheme.normal,
+  )
 );
 final cupertinoThemeData = CupertinoThemeData(
     primaryColor: Colors.blue,

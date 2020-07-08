@@ -11,8 +11,6 @@ class BibliaWidget extends StatefulWidget {
 
 class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderStateMixin{
   List<BiblionMetadata> _metadata;
-  String active;
-  Map<String, MyExpansionTile> tiles;
 
   void _onChanged(bool newValue, BiblionMetadata meta){
     setState(() {
@@ -36,7 +34,6 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
 
   MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta){
     MyExpansionTile tile = PlatformProvider.of(context).platform == TargetPlatform.iOS ? _iosExpansionTile(context, meta) : _androidExpansionTile(context, meta);
-    tiles[meta.id] = tile;
     return tile;
   }
 
@@ -64,6 +61,12 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
             ButtonBar(
               children: <Widget>[
                   PlatformButton(
+                    child: Text('Save to Preset'),
+                    onPressed: () {
+
+                    },
+                  ),
+                  PlatformButton(
                     child: _allToggle ? Text('All Off') : Text('All On'),
                     onPressed: () => {
                       setState(() => {
@@ -71,11 +74,10 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
                         _metadata.forEach((meta) {meta.active = _allToggle;})
                       })
                     },
-                    materialFlat: (__, _) => MaterialFlatButtonData(
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                    ),
                   ),
+                  PlatformButton(
+                    child: Text('Presets'),
+                  )
               ],
             ),
             for (BiblionMetadata meta in _metadata)
@@ -127,7 +129,7 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
             _displayVariable('Definition Language', meta.outLang),
             Center(
               child: PlatformButton(
-                child: Text('Download (${meta.size})'),
+                child: Text('Download (${meta.size})', style: const TextStyle(color: Colors.white),),
                 onPressed: () => {
                   _constructDownloadWarning(meta)
                       .then((value) => showPlatformDialog(
@@ -135,10 +137,6 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
                             builder: (_) => value,
                           ))
                 },
-                material: (__, _) => MaterialRaisedButtonData(
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                ),
                 cupertinoFilled: (__, _) => CupertinoFilledButtonData(),
               ),
             )
