@@ -13,6 +13,7 @@ class BibliaWidget extends StatefulWidget {
 
 class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderStateMixin{
   List<BiblionMetadata> _metadata;
+  bool _downloadOverMobile = false;
 
   void _onChanged(bool newValue, BiblionMetadata meta){
     setState(() {
@@ -138,11 +139,7 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
               child: PlatformButton(
                 child: Text('Download (${meta.size})', style: const TextStyle(color: Colors.white),),
                 onPressed: () => {
-                  _constructDownloadWarning(meta)
-                      .then((value) => showPlatformDialog(
-                            context: context,
-                            builder: (_) => value,
-                          ))
+                  _constructDownloadWarning(context, meta)
                 },
                 cupertinoFilled: (__, _) => CupertinoFilledButtonData(),
               ),
@@ -153,71 +150,91 @@ class _BibliaWidgetState extends State<BibliaWidget> with SingleTickerProviderSt
     );
   }
 
-  Future<PlatformAlertDialog> _constructDownloadWarning(
+  void _constructDownloadWarning(
+      BuildContext context,
       BiblionMetadata meta) async {
     ConnectivityResult connectivityResult =
         await (Connectivity().checkConnectivity());
     String title;
     Widget content;
     List<Widget> actions;
-    bool checked = false;
-    if (connectivityResult == ConnectivityResult.wifi) {
-      title = 'Download ${meta.shortname}';
-      content = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-              'The file you are about to download is very large (${meta.size}). Would you still like to download it?'),
-          Row(
+    if(connectivityResult == ConnectivityResult.wifi || (connectivityResult == ConnectivityResult.mobile && _downloadOverMobile)){
+      return;
+    }else if (connectivityResult == ConnectivityResult.mobile) {
+      bool checked = false;
+      title = 'Download over Cellular?';
+      content = StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Material(
-                color: Colors.transparent,
-                child: Checkbox(
-                  value: checked,
-                  onChanged: (value) {
-                    setState(() {
-                      checked = value;
-                    });
-                  },
-                ),
-              ),
-              GestureDetector(
-                  onTap: () {
-                    print(checked);
-                    setState(() {
-                      checked = !checked;
-                    });
-                  },
-                  child: Text(
-                    'Don\'t ask again',
-                  ))
+              Text(
+                  'You are about to download a ${meta.size} file over a cellular connection.'),
+              Row(
+                children: <Widget>[
+                  Material(
+                    color: Colors.transparent,
+                    child: Checkbox(
+                      value: checked,
+                      onChanged: (value) {
+                        setState(() {
+                          checked = value;
+                        });
+                      },
+                    ),
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        print(checked);
+                        setState(() {
+                          checked = !checked;
+                        });
+                      },
+                      child: Text(
+                        'Don\'t ask again',
+                      ))
+                ],
+              )
             ],
-          )
-        ],
+          );
+        },
       );
       actions = <Widget>[
         PlatformDialogAction(
           child: PlatformText('Cancel'),
-          material: (__, _) => MaterialDialogActionData(textColor: Colors.red),
-          cupertino: (__, _) =>
-              CupertinoDialogActionData(isDefaultAction: true),
           onPressed: () => Navigator.pop(context),
         ),
         PlatformDialogAction(
           child: PlatformText('Download'),
+          onPressed: () {
+            if(checked)
+              _downloadOverMobile = true;
+            Navigator.pop(context);
+          },
+        ),
+      ];
+    }else if(connectivityResult == ConnectivityResult.none){
+      title = 'Device Offline';
+      content = Text('You must be connected to the internet to download books.');
+      actions = <Widget>[
+        PlatformDialogAction(
+          child: PlatformText('Ok'),
           onPressed: () => Navigator.pop(context),
         ),
       ];
     }
 
-    return PlatformAlertDialog(
-      title: Text(title),
-      content: StatefulBuilder(
-        builder: (context, setState) {
-          return content;
-        },
+    showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text(title),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return content;
+          },
+        ),
+        actions: actions,
       ),
-      actions: actions,
     );
   }
 
