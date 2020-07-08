@@ -26,6 +26,7 @@ dependencies:
   photo_view: ^0.9.1
   unorm_dart: ^0.1.2
   flutter_platform_widgets: ^0.51.0
+  connectivity: ^0.4.9
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

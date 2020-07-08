@@ -232,7 +232,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 
   _showSearchHistory(BuildContext context) {
     if (_getHistory().isNotEmpty) {
-      String lang = _biblionLang.getString();
+      String lang = getLangString(_biblionLang);
       SimpleDialog dialog = SimpleDialog(
         title: Text('Search History ($lang)'),
         children: <Widget>[

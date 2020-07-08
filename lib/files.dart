@@ -12,10 +12,8 @@ enum Language{
   Greek
 }
 
-extension ParseToString on Language {
-  String getString(){
-    return this.toString().split('.').last;
-  }
+String getLangString(Language lang){
+    return lang.toString().split('.').last;
 }
 
 bool isNumeric(String s) {
