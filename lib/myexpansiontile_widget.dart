@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class MyExpansionTile extends StatefulWidget{
 
@@ -71,7 +72,12 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: RotationTransition(
         turns: iconTurns,
-        child: const Icon(Icons.expand_more, color: Colors.black,),
+        child: Icon(
+          Icons.expand_more,
+          color: PlatformProvider.of(context).platform == TargetPlatform.iOS
+              ? CupertinoTheme.of(context).textTheme.textStyle.color
+              : Theme.of(context).textTheme.subtitle1.color,
+        ),
       ),
     );
   }
@@ -110,18 +116,21 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
       ),
       child: Column(
         children: <Widget>[
-          ListTile(
-            leading: widget.leading,
-            title: widget.titleChevron ?
-            Row(
-              children: <Widget>[
-                widget.title,
-                _chevron()
-              ],
-            )
-                : widget.title,
-            trailing: widget.trailing ?? _chevron(),
-            onTap: _handleTap,
+          Material(
+            color: Colors.transparent,
+            child: ListTile(
+              leading: widget.leading,
+              title: widget.titleChevron ?
+              Row(
+                children: <Widget>[
+                  widget.title,
+                  _chevron()
+                ],
+              )
+                  : widget.title,
+              trailing: widget.trailing ?? _chevron(),
+              onTap: _handleTap,
+            ),
           ),
           ClipRect(
             child: Align(

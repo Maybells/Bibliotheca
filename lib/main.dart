@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bibliotheca/biblia_widget.dart';
 import 'package:bibliotheca/placeholder_widget.dart';
 import 'package:bibliotheca/viewer_widget.dart';
@@ -23,16 +25,26 @@ final materialThemeData = ThemeData(
   canvasColor: Colors.white,
   // Should not be visible
   backgroundColor: Colors.red,
-  buttonTheme: ButtonThemeData(
+  buttonTheme: const ButtonThemeData(
     buttonColor: Colors.blue,
     textTheme: ButtonTextTheme.normal,
+  ),
+  brightness: Brightness.light,
+);
+
+final materialDarkThemeData = ThemeData(
+  brightness: Brightness.dark,
+);
+
+final cupertinoThemeData = CupertinoThemeData(
+  primaryColor: CupertinoColors.activeBlue,
+  textTheme: const CupertinoTextThemeData(
+    textStyle: const TextStyle(
+        color: CupertinoDynamicColor.withBrightness(color: CupertinoColors.black, darkColor: CupertinoColors.white),
+  )
   )
 );
-final cupertinoThemeData = CupertinoThemeData(
-    primaryColor: Colors.blue,
-    barBackgroundColor: Colors.white,
-    scaffoldBackgroundColor: Colors.white,
-);
+
 Image logo = Image.asset(
   'lib/assets/images/BibliothecaLogo.png',
   fit: BoxFit.contain,
@@ -52,7 +64,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         material: (context, target) =>
-            MaterialAppData(theme: materialThemeData),
+            MaterialAppData(theme: materialThemeData, darkTheme: materialDarkThemeData),
         cupertino: (context, target) =>
             CupertinoAppData(theme: cupertinoThemeData),
         home: MyHomePage(title: 'Bibliotheca'),
@@ -123,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _appBar(BuildContext context) {
     return PlatformAppBar(
         cupertino: (_, __) => CupertinoNavigationBarData(
-              backgroundColor: Colors.blue,
+              backgroundColor: CupertinoDynamicColor.withBrightness(color: Theme.of(context).primaryColor, darkColor: Color(0xF01D1D1D)),
             ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,

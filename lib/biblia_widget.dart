@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bibliotheca/metadata.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,82 +49,55 @@ class _BibliaWidgetState extends State<BibliaWidget>
     });
   }
 
-  MyExpansionTile _iosExpansionTile(
+  MyExpansionTile _expansionTile(
       BuildContext context, BiblionMetadata meta) {
     return MyExpansionTile(
       title: Text(
         meta.shortname,
-        style: TextStyle(color: Colors.black),
+        style: (PlatformProvider.of(context).platform == TargetPlatform.iOS
+            ? CupertinoTheme.of(context).textTheme.textStyle
+            : Theme.of(context).textTheme.subtitle1).copyWith(fontFeatures: [FontFeature.enable('smcp')]),
       ),
-      trailing: CupertinoSwitch(
-          value: meta.active,
-          onChanged: (bool newValue) => this._onChanged(newValue, meta)),
       children: <Widget>[_displayMeta(context, meta)],
       titleChevron: true,
-    );
-  }
-
-  MyExpansionTile _androidExpansionTile(
-      BuildContext context, BiblionMetadata meta) {
-    return MyExpansionTile(
-      title: Text(
-        meta.shortname,
-        style: TextStyle(color: Colors.black),
-      ),
-//      leading: Checkbox(
-//        value: meta.active,
-//        onChanged: (bool newValue) => this._onChanged(newValue, meta),
-//      ),
-      children: <Widget>[_displayMeta(context, meta)],
-      titleChevron: true,
-      trailing: Switch(
+      trailing: Switch.adaptive(
         value: meta.active,
         onChanged: (bool newValue) => this._onChanged(newValue, meta),
       ),
     );
   }
 
-  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta) {
-    MyExpansionTile tile =
-        PlatformProvider.of(context).platform == TargetPlatform.iOS
-            ? _iosExpansionTile(context, meta)
-            : _androidExpansionTile(context, meta);
-    return tile;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_metadata != null) {
-      return Material(
-        child: ListView(
-          children: <Widget>[
-            ButtonBar(
-              children: <Widget>[
-                PlatformButton(
-                  child: Text('Save to Preset'),
-                  onPressed: () {},
-                ),
-                PlatformButton(
-                  child: _allToggle ? Text('All Off') : Text('All On'),
-                  onPressed: () => {
-                    setState(() => {
-                          _allToggle = !_allToggle,
-                          _metadata.forEach((meta) {
-                            meta.active = _allToggle;
-                          })
+      return ListView(
+        children: <Widget>[
+          ButtonBar(
+            children: <Widget>[
+              PlatformButton(
+                child: Text('Save to Preset'),
+                onPressed: () {},
+              ),
+              PlatformButton(
+                child: _allToggle ? Text('All Off') : Text('All On'),
+                onPressed: () => {
+                  setState(() => {
+                        _allToggle = !_allToggle,
+                        _metadata.forEach((meta) {
+                          meta.active = _allToggle;
                         })
-                  },
-                ),
-                PlatformButton(
-                  child: Text('Presets'),
-                  onPressed: _presets.isEmpty ? null : _showPresetPicker(),
-                )
-              ],
-            ),
-            for (BiblionMetadata meta in _metadata)
-              _expansionTile(context, meta)
-          ],
-        ),
+                      })
+                },
+              ),
+              PlatformButton(
+                child: Text('Presets'),
+                onPressed: _presets.isEmpty ? null : _showPresetPicker(),
+              )
+            ],
+          ),
+          for (BiblionMetadata meta in _metadata)
+            _expansionTile(context, meta)
+        ],
       );
     } else {
       return Container();
@@ -135,10 +110,9 @@ class _BibliaWidgetState extends State<BibliaWidget>
       child: RichText(
         textAlign: TextAlign.start,
         text: TextSpan(
-            style: const TextStyle(
-              fontSize: 16.0,
-              color: Colors.black,
-            ),
+            style: (PlatformProvider.of(context).platform == TargetPlatform.iOS
+                ? CupertinoTheme.of(context).textTheme.textStyle
+                : Theme.of(context).textTheme.subtitle1).copyWith(fontSize: 16.0),
             children: <TextSpan>[
               TextSpan(
                   text: '$title: ',
@@ -301,9 +275,9 @@ class _BibliaWidgetState extends State<BibliaWidget>
     );
   }
 
-  Widget _presetsIOS() {
+  Widget _presetsIOS(BuildContext context) {
     return CupertinoPicker(
-      backgroundColor: Colors.white,
+      backgroundColor: CupertinoDynamicColor.withBrightness(color: CupertinoColors.white, darkColor: CupertinoColors.black),
       itemExtent: 46.0,
       children: <Widget>[
         for (String preset in _presets.keys)
@@ -328,7 +302,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
             semanticsDismissible: true,
             builder: (_) => Container(
                   height: 200.0,
-                  child: _presetsIOS(),
+                  child: _presetsIOS(context),
                 ));
         _loadPreset(_presets.keys.first);
       } else {
