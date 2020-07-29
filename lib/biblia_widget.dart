@@ -123,6 +123,18 @@ class _BibliaWidgetState extends State<BibliaWidget>
     );
   }
 
+  Widget _downloadButton(BuildContext context, BiblionMetadata meta){
+    String text = 'Download (${meta.size})';
+    Function pressed = () => {_constructDownloadWarning(context, meta)};
+
+    return PlatformButton(
+      child: Text(text),
+      onPressed: pressed,
+      cupertino: (__, _) => CupertinoButtonData(),
+      material: (context, _) => MaterialRaisedButtonData(textColor: Theme.of(context).accentTextTheme.headline6.color),
+    );
+  }
+
   Widget _displayMeta(BuildContext context, BiblionMetadata meta) {
     return Align(
       alignment: Alignment.topLeft,
@@ -143,14 +155,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
             Padding(
               padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
               child: Center(
-                child: PlatformButton(
-                  child: Text(
-                    'Download (${meta.size})',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () => {_constructDownloadWarning(context, meta)},
-                  cupertinoFilled: (__, _) => CupertinoFilledButtonData(),
-                ),
+                child: _downloadButton(context, meta),
               ),
             )
           ],

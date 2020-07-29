@@ -27,13 +27,18 @@ final materialThemeData = ThemeData(
   backgroundColor: Colors.red,
   buttonTheme: const ButtonThemeData(
     buttonColor: Colors.blue,
-    textTheme: ButtonTextTheme.normal,
+    textTheme: ButtonTextTheme.primary,
   ),
   brightness: Brightness.light,
 );
 
 final materialDarkThemeData = ThemeData(
   brightness: Brightness.dark,
+  buttonTheme: const ButtonThemeData(
+    buttonColor: Colors.tealAccent,
+    textTheme: ButtonTextTheme.accent,
+  ),
+  dividerColor: Colors.white38,
 );
 
 final cupertinoThemeData = CupertinoThemeData(
@@ -115,13 +120,17 @@ class _MyHomePageState extends State<MyHomePage> {
               itemChanged: _clickTab,
               items: [
                 BottomNavigationBarItem(
-                    title: const Text('Viewer'), icon: const Icon(Icons.pageview)),
+                    title: const Text('Viewer'), icon: Icon(isMaterial(context)
+                    ? Icons.find_in_page
+                    : CupertinoIcons.book_solid)),
                 BottomNavigationBarItem(
                     title: const Text('Books'),
-                    icon: const Icon(Icons.library_books)),
+                    icon: Icon(isMaterial(context)
+                        ? Icons.library_books
+                        : CupertinoIcons.collections_solid)),
                 BottomNavigationBarItem(
                     title: const Text('Settings'),
-                    icon: const Icon(Icons.settings)),
+                    icon: Icon(PlatformIcons(context).gearSolid)),
               ],
             ),
             body: IndexedStack(

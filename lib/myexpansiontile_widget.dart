@@ -25,7 +25,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
   bool _isExpanded = false;
 
   Tween<double> _halfTween = Tween(begin: 0.0, end: 0.5);
-  Tween<double> _partialTween = Tween(begin: 0.2, end: 1.0);
+  Tween<double> _partialTween = Tween(begin: 0.6, end: 1.0);
 
   AnimationController _controller;
   Animation<double> _heightFactor;
