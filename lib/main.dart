@@ -90,8 +90,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentTab = 0;
   final List<Widget> _children = [
-//    ViewerWidget(),
-    PlaceholderWidget(Colors.purple),
+    ViewerWidget(),
     BibliaWidget(),
     PlaceholderWidget(Colors.amber),
   ];

@@ -306,9 +306,9 @@ class _BibliaWidgetState extends State<BibliaWidget>
             useRootNavigator: true,
             semanticsDismissible: true,
             builder: (_) => Container(
-                  height: 200.0,
-                  child: _presetsIOS(context),
-                ));
+              height: 200.0,
+              child: _presetsIOS(context),
+            ));
         _loadPreset(_presets.keys.first);
       } else {
         showPlatformDialog(context: context, builder: (_) => _presetsAndroid());

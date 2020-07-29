@@ -24,20 +24,12 @@ class _MetadataLoader {
 
 class Metadata {
   static Future<Map<String, String>> getTitles() async {
-    Map<String, dynamic> data = await _MetadataLoader.get();
+    Map<String, BiblionMetadata> data = await _MetadataLoader.get();
     Map<String, String> out = {};
     for (String id in data.keys) {
-      out[_getName(data[id])] = id;
+      out[data[id].shortname] = id;
     }
     return out;
-  }
-
-  static String _getName(Map<String, String> dict) {
-    if (dict.containsKey("shortname")) {
-      return dict["shortname"];
-    } else {
-      return dict["name"];
-    }
   }
 
   static Future<List<BiblionMetadata>> getAll() async {
