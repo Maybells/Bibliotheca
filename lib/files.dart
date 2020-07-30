@@ -104,7 +104,7 @@ class Biblion{
     }
   }
 
-  String _toGreek(String input) {
+  static String toGreek(String input) {
     String output = "";
     for (int i = 0; i < input.length; i++) {
       switch (input[i]) {
@@ -188,7 +188,7 @@ class Biblion{
     return output;
   }
 
-  String _toEnglish(String input) {
+  static String toEnglish(String input) {
     if(input.length != input.replaceAll(r'^[a-zA-Zα-ωΑ-Ω]', "").length) {
       input = unorm.nfd(input);
     }
@@ -283,10 +283,10 @@ class Biblion{
     input = input.replaceAll(r"[\p{InCombiningDiacriticalMarks}]", "");
     switch(inType){
       case Language.English:
-        input = _toEnglish(input);
+        input = toEnglish(input);
         break;
       case Language.Greek:
-        input = _toGreek(input);
+        input = toGreek(input);
         break;
       default:
         break;

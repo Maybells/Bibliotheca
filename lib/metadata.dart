@@ -27,7 +27,8 @@ class Metadata {
     Map<String, BiblionMetadata> data = await _MetadataLoader.get();
     Map<String, String> out = {};
     for (String id in data.keys) {
-      out[data[id].shortname] = id;
+      if(data[id].active)
+        out[data[id].shortname] = id;
     }
     return out;
   }

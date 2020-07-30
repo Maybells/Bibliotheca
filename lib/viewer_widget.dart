@@ -44,9 +44,9 @@ const Map<String, List<double>> predefinedFilters = {
   ],
   'Inverse': [
     //R  G   B    A  Const
-    -1, 0, 0, 0, 255, //
-    0, -1, 0, 0, 255, //
-    0, 0, -1, 0, 255, //
+    -0.8, 0, 0, 0, 204, //
+    0, -0.8, 0, 0, 204, //
+    0, 0, -0.8, 0, 204, //
     0, 0, 0, 1, 0, //
   ],
   'Sepia': [
@@ -120,6 +120,17 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                         minLines: 1,
                         style: TextStyle(fontSize: 18.0),
                         controller: _textController,
+                        onChanged: (text){
+                          if(!text.startsWith('/')){
+                            String out = _biblionLang == Language.Greek
+                                ? Biblion.toGreek(text)
+                                : Biblion.toEnglish(text);
+
+                            _textController.value = _textController.value.copyWith(
+                              text: out,
+                            );
+                          }
+                        },
                         onSubmitted: (text) {
                           setState(() {
                             _searching = true;
@@ -135,7 +146,14 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                             ),
                         cupertino: (__, _) =>
                             CupertinoTextFieldData(
-                              prefix: Icon(CupertinoIcons.search),
+                              prefix: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Icon(Icons.search,
+                                color: Colors.grey),
+                              ),
+                              padding: EdgeInsets.all(8.0),
+                              clearButtonMode: OverlayVisibilityMode.editing,
+                              placeholder: 'Search...'
                             ),
                         keyboardType: TextInputType.text,
                       ),
@@ -167,6 +185,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   void _loadBiblion(String name) async {
+    _textController.clear();
     String contents = await FileLoader.loadJSON(name);
     setState(() {
       widget._biblionID = name;
@@ -227,7 +246,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   Widget _pageviewer() {
-    List<double> filter = Theme.of(context).brightness == Brightness.light
+    List<double> filter = MediaQuery.of(context).platformBrightness == Brightness.light
         ? predefinedFilters['Identity'].toList()
         : predefinedFilters['Inverse'];
 
@@ -295,7 +314,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     String current = widget._biblionID;
     int index = books.values.toList().indexOf(current);
     print('index is '+index.toString());
-    print(widget._biblionID);
+    print(Theme.of(context).brightness);
 
     Widget picker = Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -339,15 +358,24 @@ class _ViewerWidgetState extends State<ViewerWidget> {
         semanticsDismissible: true,
         builder: (_) =>
             Container(
-              color: CupertinoDynamicColor.withBrightness(
-                  color: CupertinoColors.white, darkColor: CupertinoColors.black),
+              color: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? CupertinoColors.white
+                : CupertinoColors.black,
+//              color: CupertinoDynamicColor.withBrightness(color: Colors.white, darkColor: Colors.black),
               height: 200.0,
               child: picker,
             ));
   }
 
   _showBookPicker(BuildContext context) {
-    Metadata.getTitles().then((Map<String, String> books) {
+    Metadata.getAll().then((List<BiblionMetadata> all) {
+      all.sort((a, b) => a.shortname.compareTo(b.shortname));
+      Map<String, String> books = {};
+      for(BiblionMetadata biblion in all){
+        if(biblion.active)
+          books[biblion.shortname] = biblion.id;
+      }
+
       PlatformProvider
           .of(context)
           .platform == TargetPlatform.iOS

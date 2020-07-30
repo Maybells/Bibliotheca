@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlatformProvider(
-      initialPlatform: TargetPlatform.iOS,
+      initialPlatform: TargetPlatform.android,
       builder: (context) => PlatformApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
