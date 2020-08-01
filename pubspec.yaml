@@ -28,6 +28,7 @@ dependencies:
   flutter_platform_widgets: ^0.51.0
   connectivity: ^0.4.9
   cupertino_list_tile: ^0.1.0
+  flutter_material_pickers: ^1.7.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

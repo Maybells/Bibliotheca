@@ -4,6 +4,7 @@ import 'package:bibliotheca/biblia_widget.dart';
 import 'package:bibliotheca/placeholder_widget.dart';
 import 'package:bibliotheca/viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -34,11 +35,16 @@ final materialThemeData = ThemeData(
 
 final materialDarkThemeData = ThemeData(
   brightness: Brightness.dark,
+  accentColor: Colors.deepPurpleAccent[100],
   buttonTheme: const ButtonThemeData(
-    buttonColor: Colors.tealAccent,
+    buttonColor: Color(0xFFB388FF),
     textTheme: ButtonTextTheme.accent,
   ),
+  toggleableActiveColor: Colors.deepPurpleAccent[100],
   dividerColor: Colors.white38,
+  scaffoldBackgroundColor: Colors.black38,
+  appBarTheme: AppBarTheme(color: Colors.black12),
+  canvasColor: Colors.black54,
 );
 
 final cupertinoThemeData = CupertinoThemeData(
@@ -63,16 +69,30 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarIconBrightness: Brightness.light,
+    ));
+
     return PlatformProvider(
       initialPlatform: TargetPlatform.android,
-      builder: (context) => PlatformApp(
-        title: 'Flutter Demo',
-        debugShowCheckedModeBanner: false,
-        material: (context, target) =>
-            MaterialAppData(theme: materialThemeData, darkTheme: materialDarkThemeData),
-        cupertino: (context, target) =>
-            CupertinoAppData(theme: cupertinoThemeData),
-        home: MyHomePage(title: 'Bibliotheca'),
+      builder: (context) => GestureDetector(
+        onTap: (){
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            currentFocus.focusedChild.unfocus();
+          }
+        },
+        behavior: HitTestBehavior.opaque,
+        child: PlatformApp(
+          title: 'Flutter Demo',
+          debugShowCheckedModeBanner: false,
+          material: (context, target) =>
+              MaterialAppData(theme: materialThemeData, darkTheme: materialDarkThemeData),
+          cupertino: (context, target) =>
+              CupertinoAppData(theme: cupertinoThemeData),
+          home: MyHomePage(title: 'Bibliotheca'),
+        ),
       ),
     );
   }
@@ -121,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 BottomNavigationBarItem(
                     title: const Text('Viewer'), icon: Icon(isMaterial(context)
                     ? Icons.find_in_page
-                    : CupertinoIcons.book_solid)),
+                    : CupertinoIcons.bookmark_solid)),
                 BottomNavigationBarItem(
                     title: const Text('Books'),
                     icon: Icon(isMaterial(context)

@@ -6,6 +6,7 @@ import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
 import 'files.dart';
 import 'metadata.dart';
@@ -35,25 +36,11 @@ const Map<String, List<double>> predefinedFilters = {
     0, 0, 1, 0, 0, //
     0, 0, 0, 1, 0, //
   ],
-  'Grey Scale': [
-    //R  G   B    A  Const
-    0.33, 0.59, 0.11, 0, 0, //
-    0.33, 0.59, 0.11, 0, 0, //
-    0.33, 0.59, 0.11, 0, 0, //
-    0, 0, 0, 1, 0, //
-  ],
   'Inverse': [
     //R  G   B    A  Const
     -0.8, 0, 0, 0, 204, //
     0, -0.8, 0, 0, 204, //
     0, 0, -0.8, 0, 204, //
-    0, 0, 0, 1, 0, //
-  ],
-  'Sepia': [
-    //R  G   B    A  Const
-    0.393, 0.769, 0.189, 0, 0, //
-    0.349, 0.686, 0.168, 0, 0, //
-    0.272, 0.534, 0.131, 0, 0, //
     0, 0, 0, 1, 0, //
   ],
 };
@@ -65,6 +52,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   TextEditingController _textController;
   Biblion _biblion;
   Language _biblionLang;
+  String _preset;
 
   @override
   initState() {
@@ -97,90 +85,146 @@ class _ViewerWidgetState extends State<ViewerWidget> {
               child: Row(
                 children: <Widget>[
                   PlatformIconButton(
-                    materialIcon: Icon(Icons.library_books),
-                    material: (__, _) =>
-                        MaterialIconButtonData(
-                          tooltip: 'Switch books',
-                          iconSize: 28.0,
-                          color: Colors.grey,
-                        ),
-                    iosIcon: Icon(CupertinoIcons.folder_solid, size: 28.0,
-                      color: Colors.grey,),
-                    cupertino: (__, _) =>
-                        CupertinoIconButtonData(
-                        ),
-                    onPressed: () => _showBookPicker(context),
+                    materialIcon: Icon(Icons.collections_bookmark),
+                    material: (__, _) => MaterialIconButtonData(
+                      tooltip: 'Switch presets',
+                      iconSize: 28.0,
+                      color: Colors.grey,
+                    ),
+                    iosIcon: Icon(
+                      MediaQuery.of(context).platformBrightness ==
+                              Brightness.light
+                          ? CupertinoIcons.folder
+                          : CupertinoIcons.folder_solid,
+                      size: 28.0,
+                      color: Colors.grey,
+                    ),
+                    cupertino: (__, _) => CupertinoIconButtonData(),
+                    onPressed: () => _showPresetPicker(context),
                   ),
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: PlatformTextField(
-                        textAlignVertical: TextAlignVertical.bottom,
-                        maxLines: 1,
-                        minLines: 1,
-                        style: TextStyle(fontSize: 18.0),
-                        controller: _textController,
-                        onChanged: (text){
-                          if(!text.startsWith('/')){
-                            String out = _biblionLang == Language.Greek
-                                ? Biblion.toGreek(text)
-                                : Biblion.toEnglish(text);
-
-                            _textController.value = _textController.value.copyWith(
-                              text: out,
-                            );
-                          }
-                        },
-                        onSubmitted: (text) {
-                          setState(() {
-                            _searching = true;
-                          });
-                          _searchEntered(text);
-                        },
-                        material: (__, _) =>
-                            MaterialTextFieldData(
-                              decoration: InputDecoration(
-                                prefixIcon: const Icon(Icons.search),
-                                hintText: 'Search...',
-                              ),
-                            ),
-                        cupertino: (__, _) =>
-                            CupertinoTextFieldData(
-                              prefix: Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Icon(Icons.search,
-                                color: Colors.grey),
-                              ),
-                              padding: EdgeInsets.all(8.0),
-                              clearButtonMode: OverlayVisibilityMode.editing,
-                              placeholder: 'Search...'
-                            ),
-                        keyboardType: TextInputType.text,
-                      ),
+                      child: _searchBar(context),
                     ),
                   ),
-//                IconButton(
-//                  icon: Icon(Icons.history),
-//                  iconSize: 28.0,
-//                  tooltip: 'Search history',
-//                  color: Colors.grey,
-//                  onPressed: () => _showSearchHistory(context),
-//                ),
+                  PlatformIconButton(
+                    materialIcon: Icon(Icons.import_contacts),
+                    material: (__, _) => MaterialIconButtonData(
+                      tooltip: 'Switch books',
+                      iconSize: 28.0,
+                      color: Colors.grey,
+                    ),
+                    iosIcon: Icon(
+                      MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                          ? CupertinoIcons.book
+                          : CupertinoIcons.book_solid,
+                      size: 28.0,
+                      color: Colors.grey,
+                    ),
+                    cupertino: (__, _) => CupertinoIconButtonData(),
+                    onPressed: () => _showBookPicker(context),
+                  ),
                 ],
               ),
             ),
           ),
           Expanded(
             child: SizedBox(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              width: MediaQuery.of(context).size.width,
               child: _pageviewer(),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _search(String string) {
+    setState(() {
+      _searching = true;
+    });
+    _searchEntered(string);
+  }
+
+  Widget _searchBar(BuildContext context) {
+    Widget history = _getHistory() == null || _getHistory().isEmpty
+        ? Container(
+            width: 0.0,
+            height: 0.0,
+          )
+        : Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: PlatformIconButton(
+              iosIcon: Icon(CupertinoIcons.time, color: Colors.grey),
+              materialIcon: PopupMenuButton<String>(
+                icon: const Icon(Icons.history),
+                onSelected: (String value) {
+                  _search(value);
+                },
+                itemBuilder: (BuildContext context) {
+                  return _getHistory()
+                      .map<PopupMenuItem<String>>((String value) {
+                    return new PopupMenuItem(
+                        child: new Text(value), value: value);
+                  }).toList();
+                },
+              ),
+              cupertino: (context, _) => CupertinoIconButtonData(
+                onPressed: () {
+                  _iosPicker(
+                    context: context,
+                    entriesList: _getHistory(),
+                    onPressed: _search,
+                  );
+                },
+              ),
+            ),
+          );
+
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: <Widget>[
+        PlatformTextField(
+          textAlignVertical: TextAlignVertical.bottom,
+          maxLines: 1,
+          minLines: 1,
+          style: TextStyle(fontSize: 18.0),
+          controller: _textController,
+          onChanged: (text) {
+            if (!text.startsWith('/')) {
+              String out = _biblionLang == Language.Greek
+                  ? Biblion.toGreek(text)
+                  : Biblion.toEnglish(text);
+
+              _textController.value = _textController.value.copyWith(
+                text: out,
+              );
+            }
+          },
+          textInputAction: TextInputAction.search,
+          onSubmitted: (text) {
+            _search(text);
+          },
+          material: (__, _) => MaterialTextFieldData(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              hintText: 'Search...',
+            ),
+          ),
+          cupertino: (__, _) => CupertinoTextFieldData(
+              prefix: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(Icons.search, color: Colors.grey),
+              ),
+              padding: EdgeInsets.all(8.0),
+              //clearButtonMode: OverlayVisibilityMode.editing,
+              placeholder: 'Search...'),
+          keyboardType: TextInputType.text,
+        ),
+        history,
+      ],
     );
   }
 
@@ -201,6 +245,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   void _addSearchToHistory(String search) {
+    int index = widget._history[_biblionLang].indexOf(search);
+    if (index >= 0) {
+      widget._history[_biblionLang].removeAt(index);
+    }
     widget._history[_biblionLang].insert(0, search);
   }
 
@@ -246,9 +294,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   Widget _pageviewer() {
-    List<double> filter = MediaQuery.of(context).platformBrightness == Brightness.light
-        ? predefinedFilters['Identity'].toList()
-        : predefinedFilters['Inverse'];
+    List<double> filter =
+        MediaQuery.of(context).platformBrightness == Brightness.light
+            ? predefinedFilters['Identity'].toList()
+            : predefinedFilters['Inverse'];
 
     if (_biblion != null && !_searching) {
       return ColorFiltered(
@@ -267,10 +316,9 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             );
           },
           itemCount: _pages,
-          loadingBuilder: (context, event) =>
-              Center(
-                child: CircularProgressIndicator(),
-              ),
+          loadingBuilder: (context, event) => Center(
+            child: CircularProgressIndicator(),
+          ),
           backgroundDecoration: new BoxDecoration(color: Colors.white),
           pageController: _controller,
         ),
@@ -282,85 +330,114 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     }
   }
 
-  _bookPickerAndroid(BuildContext context, Map<String, String> books) {
-    SimpleDialog dialog = SimpleDialog(
-      title: const Text('Choose a book'),
-      children: [
-        for (String book in books.keys)
-          SimpleDialogOption(
-              child: Text(
-                book,
-                style: new TextStyle(
-                  fontSize: 20.0,
-                ),
-              ),
-              onPressed: () {
-                _changeBook(books[book]);
-                Navigator.of(context).pop();
-              })
-      ],
-    );
+  _androidPicker(
+      {BuildContext context,
+      List<String> entriesList,
+      Map<String, String> entriesMap,
+      String initialItem,
+      Function(String) onPressed,
+      String title}) {
+    assert(context != null);
+    assert(entriesList != null || entriesMap != null);
+    assert(onPressed != null);
+    assert(title != null);
 
-    // show the dialog
-    showDialog(
+    Map<String, String> entries;
+    String current;
+    int initialIndex;
+    if (entriesMap != null) {
+      entries = entriesMap;
+    } else {
+      entries = {};
+      for (String entry in entriesList) entries[entry] = entry;
+    }
+    current = initialItem;
+    initialIndex = entries.values.toList().indexOf(initialItem);
+
+    showMaterialRadioPicker(
       context: context,
-      builder: (BuildContext context) {
-        return dialog;
+      title: title,
+      items: entries.keys.toList(),
+      selectedItem: initialItem == null
+          ? null
+          : entries.keys.toList().elementAt(initialIndex),
+      onChanged: (value) => {current = entries[value]},
+      onConfirmed: () => {
+        if (current != null) {onPressed(current)}
       },
     );
   }
 
-  _bookPickerIOS(BuildContext context, Map<String, String> books) {
-    String current = widget._biblionID;
-    int index = books.values.toList().indexOf(current);
-    print('index is '+index.toString());
-    print(Theme.of(context).brightness);
+  _iosPicker(
+      {BuildContext context,
+      List<String> entriesList,
+      Map<String, String> entriesMap,
+      String initialItem,
+      Function(String) onPressed}) {
+    assert(context != null);
+    assert(entriesList != null || entriesMap != null);
+    assert(onPressed != null);
+
+    Map<String, String> entries;
+    String current;
+    int initialIndex;
+    if (entriesMap != null) {
+      entries = entriesMap;
+    } else {
+      entries = {};
+      for (String entry in entriesList) entries[entry] = entry;
+    }
+    if (initialItem == null) {
+      initialItem = entries.values.toList().first;
+      initialIndex = 0;
+    } else {
+      initialIndex = entries.values.toList().indexOf(initialItem);
+    }
+    current = initialItem;
 
     Widget picker = Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.max,
         children: [
           CupertinoButton(
             child: Text(
               'OK',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0),),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+            ),
             onPressed: () {
-              _changeBook(current);
+              onPressed(current);
               Navigator.of(context).pop();
             },
           ),
           Expanded(
             child: CupertinoPicker(
-              scrollController: FixedExtentScrollController(initialItem: index),
+              scrollController:
+                  FixedExtentScrollController(initialItem: initialIndex),
               itemExtent: 46.0,
               children: <Widget>[
-                for (String book in books.keys)
+                for (String entry in entries.keys)
                   Text(
-                    book,
+                    entry,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 36.0),
                   )
               ],
               onSelectedItemChanged: (item) {
-                //_loadPreset(_presets.keys.elementAt(item));
-                current = books.values.elementAt(item);
+                current = entries.values.elementAt(item);
               },
             ),
           ),
-        ]
-    );
+        ]);
 
     showCupertinoModalPopup(
         context: context,
         useRootNavigator: true,
         semanticsDismissible: true,
-        builder: (_) =>
-            Container(
-              color: MediaQuery.of(context).platformBrightness == Brightness.light
-                ? CupertinoColors.white
-                : CupertinoColors.black,
+        builder: (_) => Container(
+              color:
+                  MediaQuery.of(context).platformBrightness == Brightness.light
+                      ? CupertinoColors.white
+                      : CupertinoColors.black,
 //              color: CupertinoDynamicColor.withBrightness(color: Colors.white, darkColor: Colors.black),
               height: 200.0,
               child: picker,
@@ -371,52 +448,65 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     Metadata.getAll().then((List<BiblionMetadata> all) {
       all.sort((a, b) => a.shortname.compareTo(b.shortname));
       Map<String, String> books = {};
-      for(BiblionMetadata biblion in all){
-        if(biblion.active)
-          books[biblion.shortname] = biblion.id;
+      for (BiblionMetadata biblion in all) {
+        if (biblion.active) books[biblion.shortname] = biblion.id;
       }
 
-      PlatformProvider
-          .of(context)
-          .platform == TargetPlatform.iOS
-          ? _bookPickerIOS(context, books)
-          : _bookPickerAndroid(context, books);
+      PlatformProvider.of(context).platform == TargetPlatform.iOS
+          ? _iosPicker(
+              context: context,
+              entriesMap: books,
+              initialItem: widget._biblionID,
+              onPressed: _changeBook) //_bookPickerIOS(context, books)
+          : _androidPicker(
+              context: context,
+              title: 'Choose a Book',
+              entriesMap: books,
+              initialItem: widget._biblionID,
+              onPressed: _changeBook);
     });
   }
 
-  _showSearchHistory(BuildContext context) {
-    if (_getHistory().isNotEmpty) {
-      String lang = getLangString(_biblionLang);
-      SimpleDialog dialog = SimpleDialog(
-        title: Text('Search History ($lang)'),
-        children: <Widget>[
-          Container(
-            height: min(_getHistory().length * 32.0, 300),
-            width: 300.0,
-            child: ListView.builder(
-                itemCount: _getHistory().length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    child: SimpleDialogOption(
-                      child: Text(_getHistory().elementAt(index)),
-                      onPressed: () {
-                        _searchFor(_getHistory().elementAt(index), false);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  );
-                }),
-          ),
-        ],
-      );
+  Map<String, List<String>> _loadPresets() {
+    Map<String, List<String>> presets = Map();
+    presets['Greek'] = ['English-Greek', 'Gaza', 'MiddleLiddell'];
+    presets['Latin'] = ['CopCrit', 'Gradus'];
+    presets['Mix'] = ['Gaza', 'Gradus'];
+    return presets;
+  }
 
-      // show the dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return dialog;
-        },
-      );
-    }
+  _loadPreset(String preset) {
+    _preset = preset;
+    List<String> list = _loadPresets()[preset];
+
+    Metadata.getAll().then((List<BiblionMetadata> all) {
+      bool reload = false;
+      for (BiblionMetadata biblion in all) {
+        biblion.active = list.contains(biblion.id);
+        if (biblion.id == widget._biblionID && !biblion.active) {
+          reload = true;
+        }
+      }
+      if (reload) {
+        _loadBiblion(list.first);
+      }
+    });
+  }
+
+  _showPresetPicker(BuildContext context) {
+    Map presets = _loadPresets();
+
+    PlatformProvider.of(context).platform == TargetPlatform.iOS
+        ? _iosPicker(
+            context: context,
+            entriesList: presets.keys.toList(),
+            initialItem: _preset,
+            onPressed: _loadPreset) //_bookPickerIOS(context, books)
+        : _androidPicker(
+            context: context,
+            title: 'Choose a Preset',
+            initialItem: _preset,
+            entriesList: presets.keys.toList(),
+            onPressed: _loadPreset);
   }
 }
