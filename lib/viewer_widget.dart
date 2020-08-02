@@ -149,17 +149,19 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   Widget _searchBar(BuildContext context) {
-    Widget history = _getHistory() == null || _getHistory().isEmpty
+    bool hasHistory = _getHistory() != null && _getHistory().isNotEmpty;
+    
+    Widget history = !hasHistory
         ? Container(
             width: 0.0,
             height: 0.0,
           )
         : Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 0.0),
             child: PlatformIconButton(
               iosIcon: Icon(CupertinoIcons.time, color: Colors.grey),
               materialIcon: PopupMenuButton<String>(
-                icon: const Icon(Icons.history),
+                icon: const Icon(Icons.history, size: 24.0,),
                 onSelected: (String value) {
                   _search(value);
                 },
@@ -211,14 +213,15 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
               hintText: 'Search...',
+              suffixIcon: hasHistory ? Padding(padding: const EdgeInsets.only(right: 46.0),) : null,
             ),
           ),
           cupertino: (__, _) => CupertinoTextFieldData(
               prefix: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: Icon(Icons.search, color: Colors.grey),
+                child: const Icon(Icons.search, color: Colors.grey),
               ),
-              padding: EdgeInsets.all(8.0),
+              padding: hasHistory ? const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0, right: 46.0) : const EdgeInsets.all(8.0),
               //clearButtonMode: OverlayVisibilityMode.editing,
               placeholder: 'Search...'),
           keyboardType: TextInputType.text,
@@ -311,8 +314,9 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                   cacheRule: CacheRule(maxAge: const Duration(days: 7)),
                   timeoutDuration: Duration(minutes: 1)),
               initialScale: 0.0,
-              maxScale: PhotoViewComputedScale.contained * 4.0,
-              minScale: PhotoViewComputedScale.contained * 1.0,
+              basePosition: MediaQuery.of(context).orientation == Orientation.portrait ? Alignment.center : Alignment.topCenter,
+              maxScale: PhotoViewComputedScale.covered * 4.0,
+              minScale: MediaQuery.of(context).orientation == Orientation.portrait ? PhotoViewComputedScale.contained * 1.0 : PhotoViewComputedScale.covered * 0.75,
             );
           },
           itemCount: _pages,
@@ -354,10 +358,25 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     current = initialItem;
     initialIndex = entries.values.toList().indexOf(initialItem);
 
+    int maxSide;
+    switch(entries.length){
+      case 1:
+      case 2:
+        maxSide = 280;
+        break;
+      case 3:
+        maxSide = 300;
+        break;
+      default:
+        maxSide = 400;
+        break;
+    }
+
     showMaterialRadioPicker(
       context: context,
       title: title,
       items: entries.keys.toList(),
+      maxLongSide: maxSide * 1.0,
       selectedItem: initialItem == null
           ? null
           : entries.keys.toList().elementAt(initialIndex),
@@ -470,8 +489,8 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   Map<String, List<String>> _loadPresets() {
     Map<String, List<String>> presets = Map();
     presets['Greek'] = ['English-Greek', 'Gaza', 'MiddleLiddell'];
-    presets['Latin'] = ['CopCrit', 'Gradus'];
-    presets['Mix'] = ['Gaza', 'Gradus'];
+    //presets['Latin'] = ['CopCrit', 'Gradus'];
+    //presets['Mix'] = ['Gaza', 'Gradus'];
     return presets;
   }
 
