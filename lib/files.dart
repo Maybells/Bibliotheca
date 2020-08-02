@@ -6,14 +6,10 @@ import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 
-enum Language{
-  English,
-  Latin,
-  Greek
-}
+enum Language { English, Latin, Greek }
 
-String getLangString(Language lang){
-    return lang.toString().split('.').last;
+String getLangString(Language lang) {
+  return lang.toString().split('.').last;
 }
 
 bool isNumeric(String s) {
@@ -23,7 +19,7 @@ bool isNumeric(String s) {
   return int.tryParse(s) != null;
 }
 
-class Biblion{
+class Biblion {
   String name;
   String id;
   Language inLang;
@@ -31,17 +27,18 @@ class Biblion{
   Map pages;
   bool vu;
   bool ji;
+  int abbr;
 
-  Biblion(String id, String input){
+  Biblion(String id, String input) {
     this.id = id;
     pages = new Map();
     pages = jsonDecode(input);
     _loadMetadata();
   }
 
-  void _loadMetadata(){
+  void _loadMetadata() {
     String intype = pages["metadata"]["inLang"];
-    switch(intype){
+    switch (intype) {
       case "English":
         inLang = Language.English;
         inType = Language.Latin;
@@ -58,48 +55,57 @@ class Biblion{
 
     vu = pages['metadata']['vu'] == 'true';
     ji = pages['metadata']['ji'] == 'true';
+    abbr = int.parse(pages['metadata']['abbr']);
   }
 
-  String _intToDigits(int num){
+  String _intToDigits(int num) {
     int digits = numPages().toString().length;
     String out = num.toString();
-    while(out.length < digits){
+    while (out.length < digits) {
       out = "0" + out;
     }
     return out;
   }
 
-  int numPages(){
+  int numPages() {
     return pages["pages"].length;
   }
 
-  String _getPage(int page){
+  String _getPage(int page) {
     return pages["pages"][page.toString()];
   }
 
-  bool _hasOverride(String input){
+  bool _hasOverride(String input) {
     return pages["overrides"].containsKey(input);
   }
 
-  String _getOverride(String input){
+  String _getOverride(String input) {
     return pages["overrides"][input];
   }
 
-  bool _isCommand(String input){
+  bool _isCommand(String input) {
     return input.startsWith('/');
   }
 
-  int _doCommand(String input){
+  int _doCommand(String input) {
     String command = input.substring(1);
-    if(command == 'r' || command == 'rand' || command == 'random'){
-      return Random.secure().nextInt(numPages())+1;
-    }else if(command == 'last' || command == 'l'){
-      return numPages();
-    }else if(command == 'first' || command == 'f'){
+    if (command == 'r' || command == 'rand' || command == 'random') {
+      return Random.secure().nextInt(numPages()) + 1 + abbr;
+    } else if (command == 'last' || command == 'l') {
+      return numPages() + abbr + 1;
+    } else if (command == 'first' || command == 'f') {
+      return abbr + 2;
+    } else if (command == 'abbr') {
+      if(abbr > 0){
+        return 2;
+      }else{
+        return 1;
+      }
+    } else if (command == 'title' || command == 't') {
       return 1;
-    } else if(isNumeric(command)){
-      return int.parse(command);
-    }else{
+    } else if (isNumeric(command)) {
+      return int.parse(command) + abbr;
+    } else {
       return 1;
     }
   }
@@ -189,7 +195,7 @@ class Biblion{
   }
 
   static String toEnglish(String input) {
-    if(input.length != input.replaceAll(r'^[a-zA-Zα-ωΑ-Ω]', "").length) {
+    if (input.length != input.replaceAll(r'^[a-zA-Zα-ωΑ-Ω]', "").length) {
       input = unorm.nfd(input);
     }
     String output = "";
@@ -278,10 +284,10 @@ class Biblion{
     return output;
   }
 
-  String _convertString(String input){
+  String _convertString(String input) {
     input = input.toLowerCase();
     input = input.replaceAll(r"[\p{InCombiningDiacriticalMarks}]", "");
-    switch(inType){
+    switch (inType) {
       case Language.English:
         input = toEnglish(input);
         break;
@@ -292,54 +298,66 @@ class Biblion{
         break;
     }
 
-    if(vu){
+    if (vu) {
       input = input.replaceAll('v', 'u');
     }
-    if(ji){
+    if (ji) {
       input = input.replaceAll('j', 'i');
     }
 
     return input;
   }
 
-  _dictionarySearch(String input, [int lower = 1, int upper = -1]){
-    if(upper == -1){
+  _dictionarySearch(String input, [int lower = 1, int upper = -1]) {
+    if (upper == -1) {
       upper = numPages();
     }
-    if(lower >= upper){
+    if (lower >= upper) {
       return lower + 1;
     }
 
     int mid = (upper + lower) ~/ 2;
-    if(mid == lower){
+    if (mid == lower) {
       return mid + 1;
     }
     String current = _getPage(mid);
-    if(input.compareTo(current) < 0){
+    if (input.compareTo(current) < 0) {
       return _dictionarySearch(input, lower, mid);
-    }else if(input.compareTo(current) > 0){
+    } else if (input.compareTo(current) > 0) {
       return _dictionarySearch(input, mid, upper);
-    }else{
+    } else {
       return mid;
     }
   }
 
-
-
-  Future<int> search(String input) async{
-    if(_hasOverride(input)){
+  Future<int> search(String input) async {
+    if (_hasOverride(input)) {
       return search(_getOverride(input));
-    }else if(_isCommand(input)){
+    } else if (_isCommand(input)) {
       return _doCommand(input);
-    }else{
+    } else {
       input = _convertString(input);
-      return _dictionarySearch(input);
+      return _dictionarySearch(input) + abbr + 1;
     }
   }
 
-  String getUrl(int page){
-    String filename =_intToDigits(page);
-    return 'http://assets.bibliothecauraniae.com/$id/$filename.png?i=1';
+  int initialPage() {
+    return abbr+2;
+  }
+
+  String getUrl(int page) {
+    if (page == 0) {
+      // The title page
+      return 'http://assets.bibliothecauraniae.com/$id/title.png?i=1';
+    } else if (page <= abbr) {
+      // Pages containing the abbreviations used in the book
+      return 'http://assets.bibliothecauraniae.com/$id/abbr_$page.png?i=1';
+    } else {
+      // All other pages
+      page = page - abbr;
+      String filename = _intToDigits(page);
+      return 'http://assets.bibliothecauraniae.com/$id/$filename.png?i=1';
+    }
   }
 }
 

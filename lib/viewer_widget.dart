@@ -57,11 +57,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   @override
   initState() {
     super.initState();
-    _controller = new PageController(
-      initialPage: 0,
-      keepPage: true,
-      viewportFraction: 1,
-    );
     _textController = new TextEditingController();
     _biblion = null;
     _loadBiblion(widget._biblionID);
@@ -237,12 +232,19 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     setState(() {
       widget._biblionID = name;
       _biblion = new Biblion(name, contents);
-      _pages = _biblion.numPages();
+      _pages = _biblion.numPages() + _biblion.abbr + 1;
       _biblionLang = _biblion.inLang;
+      if(_controller == null) {
+        _controller = new PageController(
+          initialPage: _biblion.initialPage()-1,
+          keepPage: true,
+          viewportFraction: 1,
+        );
+      }
       if (_getHistory().isNotEmpty) {
         _searchFor(_getHistory().first, false);
       } else if (_controller.hasClients) {
-        _gotoPage(1);
+        _gotoPage(_biblion.initialPage());
       }
     });
   }
@@ -260,7 +262,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   String _getImageUrl(int page) {
-    page++;
     String url = _biblion.getUrl(page);
     return url;
   }
@@ -269,7 +270,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     page--;
     if (page < 0) page = 0;
     if (page >= _pages) page = _pages - 1;
-    print("Going to " + page.toString());
     _controller.jumpToPage(page);
   }
 
