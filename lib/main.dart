@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:get_storage/get_storage.dart';
 
 final materialThemeData = ThemeData(
   // ???
@@ -62,7 +63,8 @@ Image logo = Image.asset(
   height: 24.0,
 );
 
-void main() {
+void main() async{
+  await GetStorage.init();
   runApp(MyApp());
 }
 

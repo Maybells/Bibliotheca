@@ -1,11 +1,13 @@
 import 'dart:ui';
 
+import 'package:bibliotheca/assets/pickers.dart';
 import 'package:bibliotheca/metadata.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
+import 'files.dart';
 import 'myexpansiontile_widget.dart';
 
 class BibliaWidget extends StatefulWidget {
@@ -16,7 +18,6 @@ class BibliaWidget extends StatefulWidget {
 class _BibliaWidgetState extends State<BibliaWidget>
     with SingleTickerProviderStateMixin {
   List<BiblionMetadata> _metadata;
-  Map<String, List<String>> _presets;
   bool _allToggle = true;
   bool _downloadOverMobile = false;
 
@@ -32,15 +33,6 @@ class _BibliaWidgetState extends State<BibliaWidget>
         });
       });
     }
-
-    _loadPresets();
-  }
-
-  void _loadPresets() {
-    _presets = Map();
-    _presets['Greek'] = ['English-Greek', 'LSK', 'Meletontas', 'MiddleLiddell'];
-    _presets['Latin'] = ['CopCrit', 'Gradus'];
-    _presets['Mix'] = ['Gradus', 'LSK'];
   }
 
   void _onChanged(bool newValue, BiblionMetadata meta) {
@@ -62,7 +54,10 @@ class _BibliaWidgetState extends State<BibliaWidget>
       titleChevron: true,
       trailing: Switch.adaptive(
         value: meta.active,
-        onChanged: (bool newValue) => this._onChanged(newValue, meta),
+        onChanged: (bool newValue) {
+          persistValue('current_preset', null);
+          this._onChanged(newValue, meta);
+        },
       ),
     );
   }
@@ -76,7 +71,9 @@ class _BibliaWidgetState extends State<BibliaWidget>
             children: <Widget>[
               PlatformButton(
                 child: Text('Save to Preset'),
-                onPressed: () {},
+                onPressed: () {
+                  _savePresetPopup(context);
+                },
               ),
               PlatformButton(
                 child: _allToggle ? Text('All Off') : Text('All On'),
@@ -91,7 +88,9 @@ class _BibliaWidgetState extends State<BibliaWidget>
               ),
               PlatformButton(
                 child: Text('Presets'),
-                onPressed: _presets.isEmpty ? null : _showPresetPicker(),
+                onPressed: (){
+                  loadPresets() == null ? noPresetsWarning(context) : _showPresetPicker();
+                },
               )
             ],
           ),
@@ -254,65 +253,96 @@ class _BibliaWidgetState extends State<BibliaWidget>
   }
 
   void _loadPreset(String preset) {
+    persistValue('current_preset', preset);
+    List<dynamic> toLoad = loadPresets()[preset];
     setState(() {
       for (BiblionMetadata meta in _metadata) {
-        meta.active = _presets[preset].contains(meta.id);
+        meta.active = toLoad.contains(meta.id);
       }
     });
   }
 
-  Widget _presetsAndroid() {
-    return PlatformAlertDialog(
-      title: Text('Choose a Preset'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          for (String preset in _presets.keys)
-            ListTile(
-              title: Text(preset, style: const TextStyle(fontSize: 16.0)),
-              onTap: () {
-                Navigator.of(context).pop();
-                _loadPreset(preset);
-              },
-            )
-        ],
-      ),
-    );
+  _showPresetPicker() {
+    showPresetPicker(context, initialItem: readValue('current_preset'), onPressed: _loadPreset);
   }
 
-  Widget _presetsIOS(BuildContext context) {
-    return CupertinoPicker(
-      backgroundColor: CupertinoDynamicColor.withBrightness(color: CupertinoColors.white, darkColor: CupertinoColors.black),
-      itemExtent: 46.0,
-      children: <Widget>[
-        for (String preset in _presets.keys)
-          Text(
-            preset,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 36.0),
-          )
-      ],
-      onSelectedItemChanged: (item) {
-        _loadPreset(_presets.keys.elementAt(item));
-      },
-    );
-  }
-
-  Function _showPresetPicker() {
-    return () {
-      if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
-        showCupertinoModalPopup(
-            context: context,
-            useRootNavigator: true,
-            semanticsDismissible: true,
-            builder: (_) => Container(
-              height: 200.0,
-              child: _presetsIOS(context),
-            ));
-        _loadPreset(_presets.keys.first);
-      } else {
-        showPlatformDialog(context: context, builder: (_) => _presetsAndroid());
+  _savePresetPopup(BuildContext context){
+    bool hasActive = false;
+    List<String> preset = [];
+    for(BiblionMetadata biblion in _metadata){
+      if(biblion.active){
+        hasActive = true;
+        preset.add(biblion.id);
       }
-    };
+    }
+    if(hasActive){
+      TextEditingController controller = TextEditingController();
+      showPlatformDialog(context: context,
+          builder: (_) => PlatformAlertDialog(
+            title: Text('Save As'),
+            content: PlatformTextField(
+              controller: controller,
+            ),
+            actions: <Widget>[
+              PlatformDialogAction(
+                child: PlatformText('Cancel'),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              PlatformDialogAction(
+                child: Text('OK'),
+                onPressed: (){
+                  Map<String, dynamic> save = readValue('presets');
+
+                  if(save == null){save = Map();}
+
+                  save[controller.text] = preset;
+                  persistValue('presets', save);
+                  persistValue('current_preset', controller.text);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ));
+    }else{
+      showPlatformDialog(
+          context: context,
+          builder: (_) => PlatformAlertDialog(
+            title: Text('Preset is Empty'),
+            content: Text('You cannot have a preset with no books'),
+            actions: <Widget>[
+              PlatformDialogAction(
+                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          )
+      );
+    }
   }
+}
+
+Map<String, dynamic> loadPresets() {
+//    _presets = Map();
+//    _presets['Greek'] = ['English-Greek', 'LSK', 'Meletontas', 'MiddleLiddell'];
+//    _presets['Latin'] = ['CopCrit', 'Gradus'];
+//    _presets['Mix'] = ['Gradus', 'LSK'];
+  return readValue('presets');
+}
+
+noPresetsWarning(BuildContext context){
+  showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text('No Presets Saved'),
+        content: Text('You must save a group of books as a preset before you can load them here'),
+        actions: <Widget>[
+          PlatformDialogAction(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      )
+  );
 }

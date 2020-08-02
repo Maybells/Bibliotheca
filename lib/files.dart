@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:get_storage/get_storage.dart';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
@@ -17,6 +18,20 @@ bool isNumeric(String s) {
     return false;
   }
   return int.tryParse(s) != null;
+}
+
+persistValue(String key, dynamic value){
+  final persist = GetStorage();
+  persist.write(key, value);
+}
+
+dynamic readValue(String key){
+  final persist = GetStorage();
+  return persist.read(key);
+}
+
+String get currentPreset{
+  return readValue('current_preset');
 }
 
 class Biblion {
@@ -104,7 +119,7 @@ class Biblion {
     } else if (command == 'title' || command == 't') {
       return 1;
     } else if (isNumeric(command)) {
-      return int.parse(command) + abbr;
+      return int.parse(command) + abbr + 1;
     } else {
       return 1;
     }
