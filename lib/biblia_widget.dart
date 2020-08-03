@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:bibliotheca/assets/pickers.dart';
+import 'file:///C:/AndroidStudio/Bibliotheca/bibliotheca/lib/pickers.dart';
 import 'package:bibliotheca/metadata.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
@@ -339,6 +339,22 @@ noPresetsWarning(BuildContext context){
       builder: (_) => PlatformAlertDialog(
         title: Text('No Presets Saved'),
         content: Text('You must save a group of books as a preset before you can load them here'),
+        actions: <Widget>[
+          PlatformDialogAction(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      )
+  );
+}
+
+noBooksWarning(BuildContext context){
+  showPlatformDialog(
+      context: context,
+      builder: (_) => PlatformAlertDialog(
+        title: Text('No Active Books'),
+        content: Text('You must have at least two active books to switch between them'),
         actions: <Widget>[
           PlatformDialogAction(
             child: Text('OK'),

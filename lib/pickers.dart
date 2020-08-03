@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import '../biblia_widget.dart';
-import '../metadata.dart';
+import 'biblia_widget.dart';
+import 'metadata.dart';
 
 androidPicker(
     {BuildContext context,
-      List<String> entriesList,
-      Map<String, String> entriesMap,
-      String initialItem,
-      Function(String) onPressed,
-      String title}) {
+    List<String> entriesList,
+    Map<String, String> entriesMap,
+    String initialItem,
+    Function(String) onPressed,
+    String title}) {
   assert(context != null);
   assert(entriesList != null || entriesMap != null);
   assert(onPressed != null);
@@ -31,7 +31,7 @@ androidPicker(
   initialIndex = entries.values.toList().indexOf(initialItem);
 
   int maxSide;
-  switch(entries.length){
+  switch (entries.length) {
     case 1:
     case 2:
       maxSide = 280;
@@ -61,10 +61,10 @@ androidPicker(
 
 iosPicker(
     {BuildContext context,
-      List<String> entriesList,
-      Map<String, String> entriesMap,
-      String initialItem,
-      Function(String) onPressed}) {
+    List<String> entriesList,
+    Map<String, String> entriesMap,
+    String initialItem,
+    Function(String) onPressed}) {
   assert(context != null);
   assert(entriesList != null || entriesMap != null);
   assert(onPressed != null);
@@ -103,7 +103,7 @@ iosPicker(
         Expanded(
           child: CupertinoPicker(
             scrollController:
-            FixedExtentScrollController(initialItem: initialIndex),
+                FixedExtentScrollController(initialItem: initialIndex),
             itemExtent: 46.0,
             children: <Widget>[
               for (String entry in entries.keys)
@@ -125,52 +125,61 @@ iosPicker(
       useRootNavigator: true,
       semanticsDismissible: true,
       builder: (_) => Container(
-        color:
-        MediaQuery.of(context).platformBrightness == Brightness.light
-            ? CupertinoColors.white
-            : CupertinoColors.black,
+            color: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? CupertinoColors.white
+                : CupertinoColors.black,
 //              color: CupertinoDynamicColor.withBrightness(color: Colors.white, darkColor: Colors.black),
-        height: 200.0,
-        child: picker,
-      ));
+            height: 200.0,
+            child: picker,
+          ));
 }
 
-showBookPicker(BuildContext context, {Function(String) onPressed, String initialItem}) {
+showBookPicker(BuildContext context,
+    {Function(String) onPressed, String initialItem}) {
   Metadata.getAll().then((List<BiblionMetadata> all) {
     all.sort((a, b) => a.shortname.compareTo(b.shortname));
     Map<String, String> books = {};
+    int active = 0;
     for (BiblionMetadata biblion in all) {
-      if (biblion.active) books[biblion.shortname] = biblion.id;
+      if (biblion.active) {
+        active++;
+        books[biblion.shortname] = biblion.id;
+      }
     }
 
-    PlatformProvider.of(context).platform == TargetPlatform.iOS
-        ? iosPicker(
-        context: context,
-        entriesMap: books,
-        initialItem: initialItem,
-        onPressed: onPressed) //_bookPickerIOS(context, books)
-        : androidPicker(
-        context: context,
-        title: 'Choose a Book',
-        entriesMap: books,
-        initialItem: initialItem,
-        onPressed: onPressed);
+    if (active > 1) {
+      PlatformProvider.of(context).platform == TargetPlatform.iOS
+          ? iosPicker(
+              context: context,
+              entriesMap: books,
+              initialItem: initialItem,
+              onPressed: onPressed) //_bookPickerIOS(context, books)
+          : androidPicker(
+              context: context,
+              title: 'Choose a Book',
+              entriesMap: books,
+              initialItem: initialItem,
+              onPressed: onPressed);
+    }else{
+      noBooksWarning(context);
+    }
   });
 }
 
-showPresetPicker(BuildContext context, {Function(String) onPressed, String initialItem}) {
+showPresetPicker(BuildContext context,
+    {Function(String) onPressed, String initialItem}) {
   Map presets = loadPresets();
 
   PlatformProvider.of(context).platform == TargetPlatform.iOS
       ? iosPicker(
-      context: context,
-      entriesList: presets.keys.toList(),
-      initialItem: initialItem,
-      onPressed: onPressed) //_bookPickerIOS(context, books)
+          context: context,
+          entriesList: presets.keys.toList(),
+          initialItem: initialItem,
+          onPressed: onPressed) //_bookPickerIOS(context, books)
       : androidPicker(
-      context: context,
-      title: 'Choose a Preset',
-      initialItem: initialItem,
-      entriesList: presets.keys.toList(),
-      onPressed: onPressed);
+          context: context,
+          title: 'Choose a Preset',
+          initialItem: initialItem,
+          entriesList: presets.keys.toList(),
+          onPressed: onPressed);
 }

@@ -30,6 +30,15 @@ dynamic readValue(String key){
   return persist.read(key);
 }
 
+listen(Function onChanged){
+  final persist = GetStorage();
+  persist.listen(onChanged);
+}
+stopListen(Function onChanged){
+  final persist = GetStorage();
+  persist.removeListen(onChanged);
+}
+
 String get currentPreset{
   return readValue('current_preset');
 }

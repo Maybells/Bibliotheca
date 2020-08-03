@@ -49,13 +49,12 @@ final materialDarkThemeData = ThemeData(
 );
 
 final cupertinoThemeData = CupertinoThemeData(
-  primaryColor: CupertinoColors.activeBlue,
-  textTheme: const CupertinoTextThemeData(
-    textStyle: const TextStyle(
-        color: CupertinoDynamicColor.withBrightness(color: CupertinoColors.black, darkColor: CupertinoColors.white),
-  )
-  )
-);
+    primaryColor: CupertinoColors.activeBlue,
+    textTheme: const CupertinoTextThemeData(
+        textStyle: const TextStyle(
+      color: CupertinoDynamicColor.withBrightness(
+          color: CupertinoColors.black, darkColor: CupertinoColors.white),
+    )));
 
 Image logo = Image.asset(
   'lib/assets/images/BibliothecaLogo.png',
@@ -63,7 +62,7 @@ Image logo = Image.asset(
   height: 24.0,
 );
 
-void main() async{
+void main() async {
   await GetStorage.init();
   runApp(MyApp());
 }
@@ -71,7 +70,6 @@ void main() async{
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
       statusBarIconBrightness: Brightness.light,
     ));
@@ -79,9 +77,10 @@ class MyApp extends StatelessWidget {
     return PlatformProvider(
       initialPlatform: TargetPlatform.android,
       builder: (context) => GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+          if (!currentFocus.hasPrimaryFocus &&
+              currentFocus.focusedChild != null) {
             currentFocus.focusedChild.unfocus();
           }
         },
@@ -89,8 +88,8 @@ class MyApp extends StatelessWidget {
         child: PlatformApp(
           title: 'Flutter Demo',
           debugShowCheckedModeBanner: false,
-          material: (context, target) =>
-              MaterialAppData(theme: materialThemeData, darkTheme: materialDarkThemeData),
+          material: (context, target) => MaterialAppData(
+              theme: materialThemeData, darkTheme: materialDarkThemeData),
           cupertino: (context, target) =>
               CupertinoAppData(theme: cupertinoThemeData),
           home: MyHomePage(title: 'Bibliotheca'),
@@ -135,29 +134,31 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Theme.of(context).primaryColor,
       child: SafeArea(
         child: PlatformScaffold(
-            appBar: _appBar(context),
-            bottomNavBar: PlatformNavBar(
-              currentIndex: _currentTab,
-              itemChanged: _clickTab,
-              items: [
-                BottomNavigationBarItem(
-                    title: const Text('Viewer'), icon: Icon(isMaterial(context)
-                    ? Icons.find_in_page
-                    : CupertinoIcons.bookmark_solid)),
-                BottomNavigationBarItem(
-                    title: const Text('Books'),
-                    icon: Icon(isMaterial(context)
-                        ? Icons.library_books
-                        : CupertinoIcons.collections_solid)),
-                BottomNavigationBarItem(
-                    title: const Text('Settings'),
-                    icon: Icon(PlatformIcons(context).gearSolid)),
-              ],
-            ),
+          appBar: _appBar(context),
+          bottomNavBar: PlatformNavBar(
+            currentIndex: _currentTab,
+            itemChanged: _clickTab,
+            items: [
+              BottomNavigationBarItem(
+                  title: const Text('Viewer'),
+                  icon: Icon(isMaterial(context)
+                      ? Icons.find_in_page
+                      : CupertinoIcons.bookmark_solid)),
+              BottomNavigationBarItem(
+                  title: const Text('Books'),
+                  icon: Icon(isMaterial(context)
+                      ? Icons.library_books
+                      : CupertinoIcons.collections_solid)),
+              BottomNavigationBarItem(
+                  title: const Text('Settings'),
+                  icon: Icon(PlatformIcons(context).gearSolid)),
+            ],
+          ),
             body: IndexedStack(
               index: _currentTab,
               children: _children,
-            )),
+            ),
+        ),
       ),
     );
   }
@@ -165,7 +166,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _appBar(BuildContext context) {
     return PlatformAppBar(
         cupertino: (_, __) => CupertinoNavigationBarData(
-              backgroundColor: CupertinoDynamicColor.withBrightness(color: Theme.of(context).primaryColor, darkColor: Color(0xF01D1D1D)),
+              backgroundColor: CupertinoDynamicColor.withBrightness(
+                  color: Theme.of(context).primaryColor,
+                  darkColor: Color(0xF01D1D1D)),
             ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -185,11 +188,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
-  _changePlatform(BuildContext context){
+  _changePlatform(BuildContext context) {
     PlatformProviderState provider = PlatformProvider.of(context);
-    if(provider.platform == TargetPlatform.iOS){
+    if (provider.platform == TargetPlatform.iOS) {
       provider.changeToMaterialPlatform();
-    }else{
+    } else {
       provider.changeToCupertinoPlatform();
     }
   }

@@ -5,7 +5,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import 'assets/pickers.dart';
+import 'pickers.dart';
 import 'biblia_widget.dart';
 import 'files.dart';
 import 'metadata.dart';
@@ -46,8 +46,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   @override
   initState() {
     super.initState();
+
     _textController = new TextEditingController();
     _biblion = null;
+    listen(_handleActiveChanged);
 
     String current = readValue('current_book');
     current == null ? _loadBiblion(widget._biblionID) : _loadBiblion(current);
@@ -87,7 +89,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                       color: Colors.grey,
                     ),
                     cupertino: (__, _) => CupertinoIconButtonData(),
-                    onPressed: () => loadPresets() == null ? noPresetsWarning(context) : showPresetPicker(context, initialItem: currentPreset, onPressed: _loadPreset),
+                    onPressed: () => loadPresets() == null
+                        ? noPresetsWarning(context)
+                        : showPresetPicker(context,
+                            initialItem: currentPreset, onPressed: _loadPreset),
                   ),
                   Expanded(
                     child: Container(
@@ -104,14 +109,15 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                     ),
                     iosIcon: Icon(
                       MediaQuery.of(context).platformBrightness ==
-                          Brightness.light
+                              Brightness.light
                           ? CupertinoIcons.book
                           : CupertinoIcons.book_solid,
                       size: 28.0,
                       color: Colors.grey,
                     ),
                     cupertino: (__, _) => CupertinoIconButtonData(),
-                    onPressed: () => showBookPicker(context, initialItem: widget._biblionID, onPressed: _changeBook),
+                    onPressed: () => showBookPicker(context,
+                        initialItem: widget._biblionID, onPressed: _changeBook),
                   ),
                 ],
               ),
@@ -129,6 +135,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   void _search(String string) {
+    _lastSeen = _biblion.id;
     setState(() {
       _searching = true;
     });
@@ -137,8 +144,8 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 
   Widget _searchBar(BuildContext context) {
     bool hasHistory = _getHistory() != null && _getHistory().isNotEmpty;
-    
-    Widget history = !hasHistory
+
+    Widget history = !hasHistory || !_hasActive
         ? Container(
             width: 0.0,
             height: 0.0,
@@ -148,7 +155,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             child: PlatformIconButton(
               iosIcon: Icon(CupertinoIcons.time, color: Colors.grey),
               materialIcon: PopupMenuButton<String>(
-                icon: const Icon(Icons.history, size: 24.0,),
+                icon: const Icon(
+                  Icons.history,
+                  size: 24.0,
+                ),
                 onSelected: (String value) {
                   _search(value);
                 },
@@ -181,6 +191,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           minLines: 1,
           style: TextStyle(fontSize: 18.0),
           controller: _textController,
+          enabled: _hasActive,
           onChanged: (text) {
             if (!text.startsWith('/')) {
               String out = _biblionLang == Language.Greek.toString()
@@ -200,7 +211,11 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
               hintText: 'Search...',
-              suffixIcon: hasHistory ? Padding(padding: const EdgeInsets.only(right: 46.0),) : null,
+              suffixIcon: hasHistory
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 46.0),
+                    )
+                  : null,
             ),
           ),
           cupertino: (__, _) => CupertinoTextFieldData(
@@ -208,7 +223,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                 padding: const EdgeInsets.only(left: 8.0),
                 child: const Icon(Icons.search, color: Colors.grey),
               ),
-              padding: hasHistory ? const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0, right: 46.0) : const EdgeInsets.all(8.0),
+              padding: hasHistory
+                  ? const EdgeInsets.only(
+                      left: 8.0, top: 8.0, bottom: 8.0, right: 46.0)
+                  : const EdgeInsets.all(8.0),
               //clearButtonMode: OverlayVisibilityMode.editing,
               placeholder: 'Search...'),
           keyboardType: TextInputType.text,
@@ -218,7 +236,54 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     );
   }
 
-  void _loadBiblion(String name) async {
+  _handleActiveChanged() {
+    if (_biblion == null) {
+      return;
+    }
+    if (readValue('${_lastSeen}_active') ?? true) {
+      // If lastSeen is active but not visible, load it
+      setState(() {
+        _hasActive = true;
+        if (_lastSeen != _biblion?.id) {
+          _load(_lastSeen);
+        }
+      });
+    } else if (!(readValue('${_biblion.id}_active') ?? true)) {
+      // If lastSeen is not active and current is not active, load the earliest active
+      Metadata.getAll().then((List<BiblionMetadata> all) {
+        all.sort((a, b) => a.shortname.compareTo(b.shortname));
+        for (BiblionMetadata biblion in all) {
+          if (biblion.active) {
+            setState(() {
+              _hasActive = true;
+              _load(biblion.id);
+            });
+            break;
+          }
+        }
+        // If none are active, show a 'none active' page
+        setState(() {
+          _hasActive = false;
+        });
+      });
+    } else {
+      // Do nothing
+      setState(() {
+        _hasActive = true;
+      });
+    }
+  }
+
+  bool _hasActive = true;
+
+  String _lastSeen;
+
+  void _loadBiblion(String name) {
+    _lastSeen = name;
+    _load(name);
+  }
+
+  void _load(String name) async {
     _textController.clear();
     String contents = await FileLoader.loadJSON(name);
     setState(() {
@@ -228,53 +293,61 @@ class _ViewerWidgetState extends State<ViewerWidget> {
       _biblionLang = _biblion.inLang.toString();
 
       persistValue('current_book', name);
+//      if(name != _currentBiblion) {
+//        stopListen(_currentBiblionActive);
+//      }
 
-      if(_controller == null) {
+      if (_controller == null) {
         _controller = new PageController(
-          initialPage: readValue('current_page') == null ? _biblion.initialPage()-1 : readValue('current_page'),
+          initialPage: readValue('current_page') == null
+              ? _biblion.initialPage() - 1
+              : readValue('current_page'),
           keepPage: true,
           viewportFraction: 1,
         );
       }
-      if(_controller.hasClients){
-        if(_getHistory() != null && _getHistory().isNotEmpty){
+      if (_controller.hasClients) {
+        if (_getHistory() != null && _getHistory().isNotEmpty) {
           _searchFor(_getHistory().first, false);
-        }else{
+        } else {
           _gotoPage(_biblion.initialPage());
         }
       }
     });
   }
 
-  Map<String, dynamic> get _history{
+  Map<String, dynamic> get _history {
     Map<String, dynamic> history = readValue('history');
-    if(history == null){
+    if (history == null) {
       history = {};
       history[Language.English.toString()] = [];
       history[Language.Latin.toString()] = [];
       history[Language.Greek.toString()] = [];
     }
+    persistValue('history', history);
     return history;
   }
 
-  int get _historyLimit{
+  int get _historyLimit {
     int limit = readValue('history_limit');
-    if(limit == null){
+    if (limit == null) {
       limit = 10;
       persistValue('history_limit', limit);
     }
     return limit;
   }
+
   void _addSearchToHistory(String search) {
-    int index = _history[_biblionLang].indexOf(search);
+    Map<String, dynamic> history = _history;
+    int index = history[_biblionLang].indexOf(search);
     if (index >= 0) {
-      _history[_biblionLang].removeAt(index);
+      history[_biblionLang].removeAt(index);
     }
-    _history[_biblionLang].insert(0, search);
-    if(_history[_biblionLang].length > _historyLimit){
-      _history[_biblionLang].removeLast();
+    history[_biblionLang].insert(0, search);
+    if (history[_biblionLang].length > _historyLimit) {
+      history[_biblionLang].removeLast();
     }
-    persistValue('history', _history);
+    persistValue('history', history);
   }
 
   List<dynamic> _getHistory() {
@@ -316,7 +389,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     });
   }
 
-  _onPageChanged(int page){
+  _onPageChanged(int page) {
     persistValue('current_page', page);
   }
 
@@ -326,6 +399,17 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             ? predefinedFilters['Identity'].toList()
             : predefinedFilters['Inverse'];
 
+    if (!_hasActive) {
+      return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Text(
+        'No books are currently selected. You can turn them on the in Books tab',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 20.0),
+      ),
+          ));
+    }
     if (_biblion != null && !_searching) {
       return ColorFiltered(
         colorFilter: ColorFilter.matrix(filter),
@@ -338,9 +422,15 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                   cacheRule: CacheRule(maxAge: const Duration(days: 7)),
                   timeoutDuration: Duration(minutes: 1)),
               initialScale: 0.0,
-              basePosition: MediaQuery.of(context).orientation == Orientation.portrait ? Alignment.center : Alignment.topCenter,
+              basePosition:
+                  MediaQuery.of(context).orientation == Orientation.portrait
+                      ? Alignment.center
+                      : Alignment.topCenter,
               maxScale: PhotoViewComputedScale.covered * 4.0,
-              minScale: MediaQuery.of(context).orientation == Orientation.portrait ? PhotoViewComputedScale.contained * 1.0 : PhotoViewComputedScale.covered * 0.75,
+              minScale:
+                  MediaQuery.of(context).orientation == Orientation.portrait
+                      ? PhotoViewComputedScale.contained * 1.0
+                      : PhotoViewComputedScale.covered * 0.75,
             );
           },
           itemCount: _pages,
