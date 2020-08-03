@@ -11,19 +11,10 @@ import 'files.dart';
 import 'metadata.dart';
 
 class ViewerWidget extends StatefulWidget {
-  final Map<Language, List<String>> _history = _initializeHistory();
   String _biblionID = 'MiddleLiddell';
 
   @override
   _ViewerWidgetState createState() => _ViewerWidgetState();
-
-  static Map<Language, List<String>> _initializeHistory() {
-    Map<Language, List<String>> history = {};
-    history[Language.English] = [];
-    history[Language.Latin] = [];
-    history[Language.Greek] = [];
-    return history;
-  }
 }
 
 //Taken from https://www.burkharts.net/apps/blog/over-the-rainbow-colour-filters/
@@ -50,7 +41,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   PageController _controller;
   TextEditingController _textController;
   Biblion _biblion;
-  Language _biblionLang;
+  String _biblionLang;
 
   @override
   initState() {
@@ -163,7 +154,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                 },
                 itemBuilder: (BuildContext context) {
                   return _getHistory()
-                      .map<PopupMenuItem<String>>((String value) {
+                      .map<PopupMenuItem<String>>((dynamic value) {
                     return new PopupMenuItem(
                         child: new Text(value), value: value);
                   }).toList();
@@ -173,7 +164,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                 onPressed: () {
                   iosPicker(
                     context: context,
-                    entriesList: _getHistory(),
+                    entriesList: _getHistory().map((e) => e as String).toList(),
                     onPressed: _search,
                   );
                 },
@@ -192,7 +183,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           controller: _textController,
           onChanged: (text) {
             if (!text.startsWith('/')) {
-              String out = _biblionLang == Language.Greek
+              String out = _biblionLang == Language.Greek.toString()
                   ? Biblion.toGreek(text)
                   : Biblion.toEnglish(text);
 
@@ -234,35 +225,60 @@ class _ViewerWidgetState extends State<ViewerWidget> {
       widget._biblionID = name;
       _biblion = new Biblion(name, contents);
       _pages = _biblion.numPages() + _biblion.abbr + 1;
-      _biblionLang = _biblion.inLang;
+      _biblionLang = _biblion.inLang.toString();
 
       persistValue('current_book', name);
 
       if(_controller == null) {
         _controller = new PageController(
-          initialPage: _biblion.initialPage()-1,
+          initialPage: readValue('current_page') == null ? _biblion.initialPage()-1 : readValue('current_page'),
           keepPage: true,
           viewportFraction: 1,
         );
       }
-      if (_getHistory().isNotEmpty) {
-        _searchFor(_getHistory().first, false);
-      } else if (_controller.hasClients) {
-        _gotoPage(_biblion.initialPage());
+      if(_controller.hasClients){
+        if(_getHistory() != null && _getHistory().isNotEmpty){
+          _searchFor(_getHistory().first, false);
+        }else{
+          _gotoPage(_biblion.initialPage());
+        }
       }
     });
   }
 
-  void _addSearchToHistory(String search) {
-    int index = widget._history[_biblionLang].indexOf(search);
-    if (index >= 0) {
-      widget._history[_biblionLang].removeAt(index);
+  Map<String, dynamic> get _history{
+    Map<String, dynamic> history = readValue('history');
+    if(history == null){
+      history = {};
+      history[Language.English.toString()] = [];
+      history[Language.Latin.toString()] = [];
+      history[Language.Greek.toString()] = [];
     }
-    widget._history[_biblionLang].insert(0, search);
+    return history;
   }
 
-  List<String> _getHistory() {
-    return widget._history[_biblionLang];
+  int get _historyLimit{
+    int limit = readValue('history_limit');
+    if(limit == null){
+      limit = 10;
+      persistValue('history_limit', limit);
+    }
+    return limit;
+  }
+  void _addSearchToHistory(String search) {
+    int index = _history[_biblionLang].indexOf(search);
+    if (index >= 0) {
+      _history[_biblionLang].removeAt(index);
+    }
+    _history[_biblionLang].insert(0, search);
+    if(_history[_biblionLang].length > _historyLimit){
+      _history[_biblionLang].removeLast();
+    }
+    persistValue('history', _history);
+  }
+
+  List<dynamic> _getHistory() {
+    return _history[_biblionLang];
   }
 
   String _getImageUrl(int page) {
@@ -300,6 +316,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     });
   }
 
+  _onPageChanged(int page){
+    persistValue('current_page', page);
+  }
+
   Widget _pageviewer() {
     List<double> filter =
         MediaQuery.of(context).platformBrightness == Brightness.light
@@ -324,6 +344,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             );
           },
           itemCount: _pages,
+          onPageChanged: _onPageChanged,
           loadingBuilder: (context, event) => Center(
             child: CircularProgressIndicator(),
           ),
