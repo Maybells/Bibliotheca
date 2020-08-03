@@ -38,6 +38,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
   void _onChanged(bool newValue, BiblionMetadata meta) {
     setState(() {
       meta.active = newValue;
+      persistValue('${meta.id}_active', newValue);
     });
   }
 
@@ -82,6 +83,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
                         _allToggle = !_allToggle,
                         _metadata.forEach((meta) {
                           meta.active = _allToggle;
+                          persistValue('${meta.id}_active', _allToggle);
                         })
                       })
                 },

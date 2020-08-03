@@ -63,7 +63,7 @@ class BiblionMetadata {
     size = _read("size");
     _inLang = _read("inLang");
     _outLang = _read("outLang");
-    active = true;
+    active = readValue('${id}_active') == null ? true : readValue('${id}_active');
   }
 
   String _read(String key){
