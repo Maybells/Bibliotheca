@@ -58,6 +58,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   @override
   dispose() {
     _controller.dispose();
+    stopListen(_handleActiveChanged());
     super.dispose();
   }
 
@@ -237,7 +238,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   }
 
   _handleActiveChanged() {
-    if (_biblion == null) {
+    if (_biblion == null || !mounted) {
       return;
     }
     if (readValue('${_lastSeen}_active') ?? true) {
