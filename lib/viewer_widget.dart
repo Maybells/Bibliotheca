@@ -46,6 +46,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   Biblion _biblion;
   String _biblionLang;
   String _directory;
+  bool _downloaded;
 
   @override
   initState() {
@@ -55,6 +56,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 
     _textController = new TextEditingController();
     _biblion = null;
+    _downloaded = false;
     listen(_handleActiveChanged);
 
     String current = readValue('current_book');
@@ -72,8 +74,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     super.dispose();
   }
 
-
-  bool _value = readValue('from_downloads')??false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -85,15 +85,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             child: Center(
               child: Row(
                 children: <Widget>[
-                  PlatformSwitch(
-                    value: _value,
-                    onChanged: (value){
-                      setState(() {
-                        _value = value;
-                        persistValue('from_downloads', value);
-                      });
-                    },
-                  ),
                   PlatformIconButton(
                     materialIcon: Icon(Icons.collections_bookmark),
                     material: (__, _) => MaterialIconButtonData(
@@ -148,7 +139,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           Expanded(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: _pageviewer(),
+              child: _pageViewer(),
             ),
           ),
         ],
@@ -308,6 +299,18 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   void _load(String name) async {
     _textController.clear();
     String contents = await FileLoader.loadJSON(name);
+
+    File downloaded = File('$_directory/$name/finished.png}');
+    await downloaded.exists().then((value) {
+      if(value){
+        print('$name is available offline');
+        _downloaded = true;
+      }else{
+        print('$name requires an internet connection');
+        _downloaded = false;
+      }
+    });
+
     setState(() {
       widget._biblionID = name;
       _biblion = new Biblion(name, contents);
@@ -419,7 +422,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     persistValue('current_page', page);
   }
 
-  Widget _pageviewer() {
+  Widget _pageViewer() {
     List<double> filter =
         MediaQuery.of(context).platformBrightness == Brightness.light
             ? predefinedFilters['Identity'].toList()
@@ -443,7 +446,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           scrollPhysics: const BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: !(readValue('from_downloads') ?? false)
+              imageProvider: !_downloaded
                   ? AdvancedNetworkImage(_getImageUrl(index),
                       useDiskCache: true,
                       cacheRule: CacheRule(maxAge: const Duration(days: 7)),
