@@ -10,7 +10,8 @@ class MyExpansionTile extends StatefulWidget{
   final List<Widget> children;
   final bool titleChevron;
   final ValueChanged<bool> onExpansionChanged;
-  MyExpansionTile({this.leading, this.title, this.trailing, this.children, this.titleChevron = false, this.onExpansionChanged})
+  final Key key;
+  MyExpansionTile({this.leading, this.title, this.trailing, this.children, this.titleChevron = false, this.onExpansionChanged, this.key})
       : assert(title != null),
         assert(children != null);
 
@@ -163,6 +164,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
     );
 
     return AnimatedBuilder(
+      key: widget.key,
       animation: _controller.view,
       builder: _buildChildren,
       child: shouldRemoveChildren ? null : result,

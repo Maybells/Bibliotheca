@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
+import 'package:http/http.dart' as http;
 
 enum Language { English, Latin, Greek }
 
@@ -80,15 +81,6 @@ class Biblion {
     vu = pages['metadata']['vu'] == 'true';
     ji = pages['metadata']['ji'] == 'true';
     abbr = int.parse(pages['metadata']['abbr']);
-  }
-
-  String _intToDigits(int num) {
-    int digits = numPages().toString().length;
-    String out = num.toString();
-    while (out.length < digits) {
-      out = "0" + out;
-    }
-    return out;
   }
 
   int numPages() {
@@ -370,17 +362,21 @@ class Biblion {
   }
 
   String getUrl(int page) {
+    return 'http://assets.bibliothecauraniae.com/${getFile(page)}?i=1';
+  }
+
+  String getFile(int page){
     if (page == 0) {
       // The title page
-      return 'http://assets.bibliothecauraniae.com/$id/title.png?i=1';
+      return '$id/title.png';
     } else if (page <= abbr) {
       // Pages containing the abbreviations used in the book
-      return 'http://assets.bibliothecauraniae.com/$id/abbr_$page.png?i=1';
+      return '$id/abbr_$page.png';
     } else {
       // All other pages
       page = page - abbr;
-      String filename = _intToDigits(page);
-      return 'http://assets.bibliothecauraniae.com/$id/$filename.png?i=1';
+      String filename = intToDigits(page, numPages());
+      return '$id/$filename.png';
     }
   }
 }
@@ -422,4 +418,25 @@ class FileLoader {
   static Future<String> loadJSON(String name) async {
     return await rootBundle.loadString('lib/assets/$name.json');
   }
+}
+
+Future<File> saveImage(String directory, String name, String url)async{
+  http.Client client = new http.Client();
+  var req = await client.get(Uri.parse(url));
+  var bytes = req.bodyBytes;
+  File file = File(
+    '$directory/$name'
+  );
+  //file.createSync();
+  await file.writeAsBytes(bytes);
+  return file;
+}
+
+String intToDigits(int num, int max) {
+  int digits = max.toString().length;
+  String out = num.toString();
+  while (out.length < digits) {
+    out = "0" + out;
+  }
+  return out;
 }

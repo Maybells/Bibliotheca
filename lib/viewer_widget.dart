@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -42,10 +45,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   TextEditingController _textController;
   Biblion _biblion;
   String _biblionLang;
+  String _directory;
 
   @override
   initState() {
     super.initState();
+
+    _initializeDirectory();
 
     _textController = new TextEditingController();
     _biblion = null;
@@ -55,6 +61,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     current == null ? _loadBiblion(widget._biblionID) : _loadBiblion(current);
   }
 
+  _initializeDirectory() async {
+    _directory = (await getApplicationDocumentsDirectory()).path;
+  }
+
   @override
   dispose() {
     _controller.dispose();
@@ -62,6 +72,8 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     super.dispose();
   }
 
+
+  bool _value = readValue('from_downloads')??false;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -73,6 +85,15 @@ class _ViewerWidgetState extends State<ViewerWidget> {
             child: Center(
               child: Row(
                 children: <Widget>[
+                  PlatformSwitch(
+                    value: _value,
+                    onChanged: (value){
+                      setState(() {
+                        _value = value;
+                        persistValue('from_downloads', value);
+                      });
+                    },
+                  ),
                   PlatformIconButton(
                     materialIcon: Icon(Icons.collections_bookmark),
                     material: (__, _) => MaterialIconButtonData(
@@ -359,6 +380,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     String url = _biblion.getUrl(page);
     return url;
   }
+  
+  String _getImageFile(int page){
+    return _biblion.getFile(page);
+  }
 
   void _gotoPage(int page) {
     page--;
@@ -403,13 +428,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     if (!_hasActive) {
       return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Text(
-        'No books are currently selected. You can turn them on the in Books tab',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 20.0),
-      ),
-          ));
+        padding: const EdgeInsets.all(32.0),
+        child: Text(
+          'No books are currently selected. You can turn them on the in Books tab',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 20.0),
+        ),
+      ));
     }
     if (_biblion != null && !_searching) {
       return ColorFiltered(
@@ -418,10 +443,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           scrollPhysics: const BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: AdvancedNetworkImage(_getImageUrl(index),
-                  useDiskCache: true,
-                  cacheRule: CacheRule(maxAge: const Duration(days: 7)),
-                  timeoutDuration: Duration(minutes: 1)),
+              imageProvider: !(readValue('from_downloads') ?? false)
+                  ? AdvancedNetworkImage(_getImageUrl(index),
+                      useDiskCache: true,
+                      cacheRule: CacheRule(maxAge: const Duration(days: 7)),
+                      timeoutDuration: Duration(minutes: 1))
+                  : FileImage(File('$_directory/${_getImageFile(index)}')),
+              //FileImage(File('$_directory/title.png')),
               initialScale: 0.0,
               basePosition:
                   MediaQuery.of(context).orientation == Orientation.portrait

@@ -45,11 +45,12 @@ class BiblionMetadata {
   String shortname;
   String author;
   String type;
-  String pages;
+  int pages;
   String size;
   String _inLang;
   String _outLang;
   bool active;
+  int abbr;
 
   dynamic _data;
 
@@ -59,7 +60,8 @@ class BiblionMetadata {
     shortname = data.containsKey("shortname") ? _read("shortname") : _read("name");
     author = _read("author");
     type = _read("type");
-    pages = _read("pages");
+    pages = int.parse(_read("pages")??0);
+    abbr = int.parse(_read("abbr")??0);
     size = _read("size");
     _inLang = _read("inLang");
     _outLang = _read("outLang");
