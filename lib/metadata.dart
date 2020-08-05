@@ -51,6 +51,7 @@ class BiblionMetadata {
   String _outLang;
   bool active;
   int abbr;
+  bool hidden;
 
   dynamic _data;
 
@@ -65,7 +66,8 @@ class BiblionMetadata {
     size = _read("size");
     _inLang = _read("inLang");
     _outLang = _read("outLang");
-    active = readValue('${id}_active') == null ? true : readValue('${id}_active');
+    hidden = _read('hidden') == 'true' ? true : false;
+    active = hidden ? false : readValue('${id}_active') == null ? true : readValue('${id}_active');
   }
 
   String _read(String key){

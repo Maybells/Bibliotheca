@@ -143,7 +143,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
               )
             ],
           ),
-          for (BiblionMetadata meta in _metadata) _expansionTile(context, meta)
+          for (BiblionMetadata meta in _metadata) if(!meta.hidden) _expansionTile(context, meta)
         ],
       );
     } else {
