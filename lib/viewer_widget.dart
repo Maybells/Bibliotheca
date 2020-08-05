@@ -46,7 +46,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   Biblion _biblion;
   String _biblionLang;
   String _directory;
-  bool _downloaded;
 
   @override
   initState() {
@@ -56,7 +55,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 
     _textController = new TextEditingController();
     _biblion = null;
-    _downloaded = false;
     listen(_handleActiveChanged);
 
     String current = readValue('current_book');
@@ -300,17 +298,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     _textController.clear();
     String contents = await FileLoader.loadJSON(name);
 
-    File downloaded = File('$_directory/$name/finished.png}');
-    await downloaded.exists().then((value) {
-      if(value){
-        print('$name is available offline');
-        _downloaded = true;
-      }else{
-        print('$name requires an internet connection');
-        _downloaded = false;
-      }
-    });
-
     setState(() {
       widget._biblionID = name;
       _biblion = new Biblion(name, contents);
@@ -422,6 +409,18 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     persistValue('current_page', page);
   }
 
+  ImageProvider _pageSource(int index){
+    File page = File('$_directory/${_getImageFile(index)}');
+    if(page.existsSync()){
+      return FileImage(page);
+    }else{
+      return AdvancedNetworkImage(_getImageUrl(index),
+          useDiskCache: true,
+          cacheRule: CacheRule(maxAge: const Duration(days: 7)),
+          timeoutDuration: Duration(minutes: 1));
+    }
+  }
+
   Widget _pageViewer() {
     List<double> filter =
         MediaQuery.of(context).platformBrightness == Brightness.light
@@ -446,12 +445,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           scrollPhysics: const BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: !_downloaded
-                  ? AdvancedNetworkImage(_getImageUrl(index),
-                      useDiskCache: true,
-                      cacheRule: CacheRule(maxAge: const Duration(days: 7)),
-                      timeoutDuration: Duration(minutes: 1))
-                  : FileImage(File('$_directory/${_getImageFile(index)}')),
+              imageProvider: _pageSource(index),
               //FileImage(File('$_directory/title.png')),
               initialScale: 0.0,
               basePosition:

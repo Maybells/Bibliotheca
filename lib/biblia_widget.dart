@@ -279,11 +279,8 @@ class _BibliaWidgetState extends State<BibliaWidget>
       _downloadButtons[meta.id] = DownloadProgress(deleting: true);
     });
 
-    print('uninstalling');
-
     Directory directory = await createDirectory(meta.id);
     directory.delete(recursive: true).then((value) {
-      print('uninstall finished');
       setState(() {
         _downloadButtons[meta.id] = DownloadProgress();
       });
@@ -318,14 +315,12 @@ class _BibliaWidgetState extends State<BibliaWidget>
     File finished = File('$directory/finished.png}');
 
     // Download the rest of the book 21 pages at a time (one-by-one took ~17 minutes for a 900 page book, 4-by-4 took ~4.5, 11-by-11 ~1.5, 21-by-21 ~50 secs)
-    print('downloading pages');
     for (int i = from; i <= meta.pages; i += grouping) {
       await Future.wait([
         for (int j = 0; j < grouping && i + j <= meta.pages; j++)
           saveImage(directory, '${intToDigits(i + j, meta.pages)}.png',
               'http://assets.bibliothecauraniae.com/${meta.id}/${intToDigits(i + j, meta.pages)}.png?i=1')
       ]);
-      print('pages $i though ${i + grouping - 1} downloaded');
       if (_downloadButtons[meta.id].pausing) {
         timer.cancel();
         setState(() {
@@ -345,7 +340,6 @@ class _BibliaWidgetState extends State<BibliaWidget>
     }
     timer.cancel();
     finished.createSync();
-    print('pages downloaded');
     setState(() {
       _downloadButtons[meta.id]
         ..inProgress = false
@@ -550,7 +544,6 @@ class _BibliaWidgetState extends State<BibliaWidget>
         File finished = File('${event.path}/finished.png}');
         finished.exists().then((value) {
           if (value) {
-            print('finished found for $folder');
             setState(() {
               _downloadButtons[folder] = DownloadProgress(downloaded: true);
             });
@@ -581,8 +574,6 @@ class _BibliaWidgetState extends State<BibliaWidget>
                       break;
                     }
                   }
-
-                  print('$folder last is $last');
 
                   setState(() {
                     _downloadButtons[folder] =
