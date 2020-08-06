@@ -1,3 +1,4 @@
+import 'package:bibliotheca/pickers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -66,8 +67,34 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           subtitle: 'Top',
         ),
         _item(
-          title: 'Searches saved',
-          subtitle: '10',
+          title: 'Search history',
+          subtitle: readValue('history_limit') == 0 ? 'Don\'t save history' : 'Last ${readValue('history_limit')} searches',
+          onTap: (){
+            androidPicker(
+              context: context,
+              initialItem: readValue('history_limit').toString(),
+              entriesList: [for(int i = 0; i <= 6; i++) (i*5).toString()],
+              title: 'Search History',
+              onPressed: (value){
+                int val = int.parse(value);
+                if(val == 0){
+                  persistValue('history', null);
+                  _searchEmpty = true;
+                }else{
+                  Map<String, dynamic> history = readValue('history');
+                  for(String id in history.keys){
+                    while(history[id].length > val){
+                      history[id].removeLast();
+                    }
+                  }
+                  persistValue('history', history);
+                }
+                setState(() {
+                  persistValue('history_limit', val);
+                });
+              },
+            );
+          }
         ),
         _item(
           title: 'Clear search history',
@@ -105,6 +132,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     listenValue('history_changed', _historyChanged);
 
     _searchEmpty = false;
+
+    if (readValue('history_limit') == null) {
+      persistValue('history_limit', 10);
+    }
   }
 
   bool _searchEmpty;

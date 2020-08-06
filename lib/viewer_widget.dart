@@ -356,7 +356,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
       history[_biblionLang].removeAt(index);
     }
     history[_biblionLang].insert(0, search);
-    if (history[_biblionLang].length > _historyLimit) {
+    while (history[_biblionLang].length > _historyLimit) {
       history[_biblionLang].removeLast();
     }
     persistValue('history', history);
