@@ -360,6 +360,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
       history[_biblionLang].removeLast();
     }
     persistValue('history', history);
+    persistValue('history_changed', true);
   }
 
   List<dynamic> _getHistory() {
@@ -432,7 +433,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Text(
-          'No books are currently selected. You can turn them on the in Books tab',
+          'No books are currently selected. You can turn them on the in the Book Manager tab',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 20.0),
         ),

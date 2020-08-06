@@ -35,6 +35,10 @@ listen(Function onChanged){
   final persist = GetStorage();
   persist.listen(onChanged);
 }
+listenValue(String key, Function(dynamic) onChanged){
+  final persist = GetStorage();
+  persist.listenKey(key, (value) => onChanged(value));
+}
 stopListen(Function onChanged){
   final persist = GetStorage();
   persist.removeListen(onChanged);

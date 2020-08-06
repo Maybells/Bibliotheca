@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:bibliotheca/biblia_widget.dart';
-import 'package:bibliotheca/placeholder_widget.dart';
+import 'package:bibliotheca/settings_widget.dart';
 import 'package:bibliotheca/viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _children = [
     ViewerWidget(),
     BibliaWidget(),
-    PlaceholderWidget(Colors.amber),
+    SettingsWidget(),
   ];
 
   @override
@@ -145,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ? Icons.find_in_page
                       : CupertinoIcons.bookmark_solid)),
               BottomNavigationBarItem(
-                  title: const Text('Books'),
+                  title: const Text('Book Manager'),
                   icon: Icon(isMaterial(context)
                       ? Icons.library_books
                       : CupertinoIcons.collections_solid)),
