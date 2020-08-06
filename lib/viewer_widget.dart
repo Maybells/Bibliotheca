@@ -77,70 +77,81 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     return SafeArea(
       child: Column(
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(bottom: 5.0),
-            padding: EdgeInsets.symmetric(horizontal: 5.0),
-            child: Center(
-              child: Row(
-                children: <Widget>[
-                  PlatformIconButton(
-                    materialIcon: Icon(Icons.collections_bookmark),
-                    material: (__, _) => MaterialIconButtonData(
-                      tooltip: 'Switch presets',
-                      iconSize: 28.0,
-                      color: Colors.grey,
-                      enableFeedback: false,
-                    ),
-                    iosIcon: Icon(
-                      MediaQuery.of(context).platformBrightness ==
-                              Brightness.light
-                          ? CupertinoIcons.folder
-                          : CupertinoIcons.folder_solid,
-                      size: 28.0,
-                      color: Colors.grey,
-                    ),
-                    cupertino: (__, _) => CupertinoIconButtonData(),
-                    onPressed: () => loadPresets() == null
-                        ? noPresetsWarning(context)
-                        : showPresetPicker(context,
-                            initialItem: currentPreset, onPressed: _loadPreset),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: _searchBar(context),
-                    ),
-                  ),
-                  PlatformIconButton(
-                    materialIcon: Icon(Icons.import_contacts),
-                    material: (__, _) => MaterialIconButtonData(
-                      tooltip: 'Switch books',
-                      iconSize: 28.0,
-                      color: Colors.grey,
-                    ),
-                    iosIcon: Icon(
-                      MediaQuery.of(context).platformBrightness ==
-                              Brightness.light
-                          ? CupertinoIcons.book
-                          : CupertinoIcons.book_solid,
-                      size: 28.0,
-                      color: Colors.grey,
-                    ),
-                    cupertino: (__, _) => CupertinoIconButtonData(),
-                    onPressed: () => showBookPicker(context,
-                        initialItem: widget._biblionID, onPressed: _changeBook),
-                  ),
-                ],
+          readValue('search_on_top')??true ? _topBar(context, true) : Container(),
+
+          _viewer(context),
+
+          readValue('search_on_top')??true ? Container() : _topBar(context, false),
+        ],
+      ),
+    );
+  }
+
+  Widget _viewer(BuildContext context){
+    return Expanded(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: _pageViewer(),
+      ),
+    );
+  }
+
+  Widget _topBar(BuildContext context, bool top){
+    return Container(
+      margin: top ? EdgeInsets.only(bottom: 5.0, top: 5.0) : EdgeInsets.only(bottom: 20.0, top: 5.0),
+      padding: EdgeInsets.symmetric(horizontal: 5.0),
+      child: Center(
+        child: Row(
+          children: <Widget>[
+            PlatformIconButton(
+              materialIcon: Icon(Icons.collections_bookmark),
+              material: (__, _) => MaterialIconButtonData(
+                tooltip: 'Switch presets',
+                iconSize: 28.0,
+                color: Colors.grey,
+                enableFeedback: false,
+              ),
+              iosIcon: Icon(
+                MediaQuery.of(context).platformBrightness ==
+                    Brightness.light
+                    ? CupertinoIcons.folder
+                    : CupertinoIcons.folder_solid,
+                size: 28.0,
+                color: Colors.grey,
+              ),
+              cupertino: (__, _) => CupertinoIconButtonData(),
+              onPressed: () => loadPresets() == null
+                  ? noPresetsWarning(context)
+                  : showPresetPicker(context,
+                  initialItem: currentPreset, onPressed: _loadPreset),
+            ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: _searchBar(context),
               ),
             ),
-          ),
-          Expanded(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: _pageViewer(),
+            PlatformIconButton(
+              materialIcon: Icon(Icons.import_contacts),
+              material: (__, _) => MaterialIconButtonData(
+                tooltip: 'Switch books',
+                iconSize: 28.0,
+                color: Colors.grey,
+              ),
+              iosIcon: Icon(
+                MediaQuery.of(context).platformBrightness ==
+                    Brightness.light
+                    ? CupertinoIcons.book
+                    : CupertinoIcons.book_solid,
+                size: 28.0,
+                color: Colors.grey,
+              ),
+              cupertino: (__, _) => CupertinoIconButtonData(),
+              onPressed: () => showBookPicker(context,
+                  initialItem: widget._biblionID, onPressed: _changeBook),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

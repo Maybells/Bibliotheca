@@ -62,9 +62,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _title('Viewer'),
-        _item(
-          title: 'Search bar position',
-          subtitle: 'Top',
+        _switchItem(
+          title: 'Search bar on top',
+          initialValue: readValue('search_on_top')??true,
+          onToggle: (value){
+            setState(() {
+              persistValue('search_on_top', value);
+            });
+          },
         ),
         _item(
           title: 'Search history',
