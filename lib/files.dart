@@ -131,6 +131,7 @@ class Biblion {
   }
 
   static String toGreek(String input) {
+    input = input.toLowerCase();
     String output = "";
     for (int i = 0; i < input.length; i++) {
       switch (input[i]) {
@@ -186,7 +187,13 @@ class Biblion {
           output = output + "ρ";
           break;
         case 's':
-          output = output + "σ";
+        case 'σ':
+        case 'ς':
+          if(i == input.length-1){
+            output = output + "ς";
+          }else{
+            output = output + "σ";
+          }
           break;
         case 't':
           output = output + "τ";
@@ -215,6 +222,7 @@ class Biblion {
   }
 
   static String toEnglish(String input) {
+    input = input.toLowerCase();
     if (input.length != input.replaceAll(r'^[a-zA-Zα-ωΑ-Ω]', "").length) {
       input = unorm.nfd(input);
     }
