@@ -345,16 +345,29 @@ class Biblion {
     }
 
     int mid = (upper + lower) ~/ 2;
-    if (mid == lower) {
-      return mid + 1;
-    }
     String current = _getPage(mid);
+    if (mid == lower) {
+      if(input.compareTo(current) <= 0){
+        return mid;
+      }else{
+        return mid + 1;
+      }
+    }
     if (input.compareTo(current) < 0) {
       return _dictionarySearch(input, lower, mid);
     } else if (input.compareTo(current) > 0) {
       return _dictionarySearch(input, mid, upper);
     } else {
       return mid;
+    }
+  }
+
+  int _earliestPage(int page){
+    String content = _getPage(page);
+    if(page == 1 || content != _getPage(page-1)){
+      return page;
+    }else{
+      return _earliestPage(page-1);
     }
   }
 
@@ -365,7 +378,7 @@ class Biblion {
       return _doCommand(input);
     } else {
       input = _convertString(input);
-      return _dictionarySearch(input) + abbr + 1;
+      return _earliestPage(_dictionarySearch(input)) + abbr + 1;
     }
   }
 
