@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:get_storage/get_storage.dart';
@@ -474,7 +475,12 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           itemCount: _pages,
           onPageChanged: _onPageChanged,
           loadingBuilder: (context, event) => Center(
-            child: CircularProgressIndicator(),
+            //TODO: Fix iOS progress not showing in dark mode
+            child: PlatformCircularProgressIndicator(
+              cupertino: (__, _) => CupertinoProgressIndicatorData(
+                radius: 24.0,
+              ),
+            ),
           ),
           backgroundDecoration: new BoxDecoration(color: Colors.white),
           pageController: _controller,
