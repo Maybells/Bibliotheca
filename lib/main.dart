@@ -170,6 +170,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Theme.of(context).primaryColor,
                   darkColor: Color(0xF01D1D1D)),
             ),
+        trailingActions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Icon(Icons.help_outline),
+          ),
+        ],
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

@@ -111,6 +111,19 @@ class _BibliaWidgetState extends State<BibliaWidget>
   @override
   Widget build(BuildContext context) {
     if (_metadata != null) {
+      List<Widget> widgets = [
+
+      ];
+      for (BiblionMetadata meta in _metadata)
+        if(!meta.hidden || readValue('${meta.id}_unlocked') == 'true')
+          widgets.add(_expansionTile(context, meta));
+        else
+          listenValue('${meta.id}_unlocked', (value){
+            setState(() {
+              meta.hidden = false;
+            });
+          });
+
       return ListView(
         children: <Widget>[
           ButtonBar(
@@ -143,7 +156,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
               )
             ],
           ),
-          for (BiblionMetadata meta in _metadata) if(!meta.hidden) _expansionTile(context, meta)
+          ...widgets,
         ],
       );
     } else {
