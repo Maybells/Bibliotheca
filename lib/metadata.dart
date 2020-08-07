@@ -68,7 +68,11 @@ class BiblionMetadata {
     _inLang = _read("inLang");
     _outLang = _read("outLang");
     hidden = _read('hidden') == 'true' ? true : false;
-    active = hidden ? false : readValue('${id}_active') == null ? true : readValue('${id}_active');
+    if(hidden && readValue('${id}_unlocked') != 'true'){
+      active = false;
+    }else{
+      active = readValue('${id}_active') == null ? true : readValue('${id}_active');
+    }
     password = hidden ? _read('password') : null;
   }
 
