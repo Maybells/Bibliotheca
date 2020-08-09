@@ -149,7 +149,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
               PlatformButton(
                 child: Text('Presets'),
                 onPressed: () {
-                  loadPresets() == null
+                  (readValue('presets_list')??[]).isEmpty
                       ? noPresetsWarning(context)
                       : _showPresetPicker();
                 },

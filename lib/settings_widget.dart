@@ -323,58 +323,75 @@ class _PresetsWidgetState extends State<PresetsWidget> {
   Widget build(BuildContext context) {
     List<dynamic> presets = readValue('presets_list');
     Widget widget;
-    print(presets == []);
-    if (presets == null || presets == [] || true) {
+    List<Widget> children = [
+      for (String name in presets)
+        platformListTile(context,
+            key: ValueKey(name),
+            leading: PlatformProvider.of(context).platform == TargetPlatform.iOS
+                ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlatformIconButton(
+                  icon: Icon(CupertinoIcons.up_arrow),
+                  onPressed: presets.indexOf(name) == 0 ? null
+                      :(){
+                    int index = presets.indexOf(name);
+                    if(index > 0){
+                      _onReorder(index, index-1, presets: presets);
+                    }
+                  },
+                ),
+                PlatformIconButton(
+                  icon: Icon(CupertinoIcons.down_arrow,),
+                  onPressed: presets.indexOf(name) == presets.length-1 ? null
+                      :(){
+                    int index = presets.indexOf(name);
+                    if(index > -1 && index < presets.length-1){
+                      _onReorder(index, index+2, presets: presets);
+                    }
+                  },
+                ),
+              ],
+            )
+                : Icon(Icons.reorder),
+            title: Row(
+              children: <Widget>[
+                platformText(
+                  context,
+                  name,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: PlatformIconButton(
+                    iosIcon: Icon(CupertinoIcons.pencil),
+                    androidIcon: Icon(Icons.edit),
+                  ),
+                ),
+              ],
+            ),
+            trailing: PlatformIconButton(
+              iosIcon: Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed,),
+              androidIcon: Icon(Icons.delete, color: Colors.red,),
+              onPressed: () {
+                setState(() {
+                  presets.removeWhere((element) => element == name);
+                  persistValue('presets_list', presets);
+                });
+              },
+            ))
+    ];
+    if (presets == null || presets.isEmpty) {
       widget = Center(
         child: platformText(context, 'Reorder, rename, and delete your presets here.'),
       );
-    } else {
+    } else if(PlatformProvider.of(context).platform == TargetPlatform.iOS){
+      widget = ListView(
+        children: children,
+      );
+    }else{
       widget = ReorderableListView(
-        children: [
-          for (String name in presets)
-            platformListTile(context,
-                key: ValueKey(name),
-                leading: Icon(PlatformIcons(context).dehaze,
-                ),
-                title: Row(
-                  children: <Widget>[
-                    platformText(
-                      context,
-                      name,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: PlatformIconButton(
-                        iosIcon: Icon(CupertinoIcons.pencil),
-                        androidIcon: Icon(Icons.edit),
-                      ),
-                    ),
-                  ],
-                ),
-                trailing: PlatformIconButton(
-                  iosIcon: Icon(CupertinoIcons.delete),
-                  androidIcon: Icon(Icons.delete),
-                  color: Colors.red,
-                  onPressed: () {
-                    setState(() {
-                      presets.removeWhere((element) => element == name);
-                      persistValue('presets_list', presets);
-                    });
-                  },
-                ))
-        ],
-        onReorder: (oldIndex, newIndex) {
-          setState(
-            () {
-              if (newIndex > oldIndex) {
-                newIndex -= 1;
-              }
-              final String item = presets.removeAt(oldIndex);
-              presets.insert(newIndex, item);
-              persistValue('presets_list', presets);
-            },
-          );
-        },
+        children: children,
+        onReorder: (oldIndex, newIndex) => _onReorder(oldIndex, newIndex, presets: presets),
       );
     }
     return PlatformScaffold(
@@ -393,8 +410,24 @@ class _PresetsWidgetState extends State<PresetsWidget> {
                 darkColor: Color(0xF01D1D1D)),
             transitionBetweenRoutes: false,
           ),
+          material: (_, __) => MaterialAppBarData(
+            title: Text('Presets'),
+          ),
         ),
         body: widget,
       );
+  }
+
+  _onReorder(int oldIndex, int newIndex, {List<dynamic> presets}){
+    setState(
+          () {
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+        final String item = presets.removeAt(oldIndex);
+        presets.insert(newIndex, item);
+        persistValue('presets_list', presets);
+      },
+    );
   }
 }

@@ -49,7 +49,7 @@ final materialDarkThemeData = ThemeData(
 );
 
 final cupertinoThemeData = CupertinoThemeData(
-    primaryColor: CupertinoColors.activeBlue,
+    primaryColor: CupertinoDynamicColor.withBrightness(color: CupertinoColors.black, darkColor: CupertinoColors.white),
     textTheme: const CupertinoTextThemeData(
         textStyle: const TextStyle(
       color: CupertinoDynamicColor.withBrightness(
@@ -137,6 +137,9 @@ class _MyHomePageState extends State<MyHomePage> {
           bottomNavBar: PlatformNavBar(
             currentIndex: _currentTab,
             itemChanged: _clickTab,
+            cupertino: (__, _) => CupertinoTabBarData(
+              activeColor: CupertinoColors.activeBlue,
+            ),
             items: [
               BottomNavigationBarItem(
                   title: const Text('Viewer'),

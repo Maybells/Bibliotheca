@@ -121,7 +121,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
                 color: Colors.grey,
               ),
               cupertino: (__, _) => CupertinoIconButtonData(),
-              onPressed: () => loadPresets() == null
+              onPressed: () => (readValue('presets_list')??[]).isEmpty
                   ? noPresetsWarning(context)
                   : showPresetPicker(context,
                   initialItem: currentPreset, onPressed: _loadPreset),
