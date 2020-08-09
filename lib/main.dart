@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
     ));
 
     return PlatformProvider(
-      initialPlatform: TargetPlatform.android,
+      initialPlatform: TargetPlatform.iOS,
       builder: (context) => GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
@@ -86,7 +86,6 @@ class MyApp extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: PlatformApp(
-          title: 'Flutter Demo',
           debugShowCheckedModeBanner: false,
           material: (context, target) => MaterialAppData(
               theme: materialThemeData, darkTheme: materialDarkThemeData),
@@ -154,10 +153,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icon(PlatformIcons(context).gearSolid)),
             ],
           ),
-            body: IndexedStack(
-              index: _currentTab,
-              children: _children,
-            ),
+          body: IndexedStack(
+            index: _currentTab,
+            children: _children,
+          ),
         ),
       ),
     );
@@ -169,6 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
               backgroundColor: CupertinoDynamicColor.withBrightness(
                   color: Theme.of(context).primaryColor,
                   darkColor: Color(0xF01D1D1D)),
+              transitionBetweenRoutes: false,
             ),
         trailingActions: <Widget>[
           Padding(

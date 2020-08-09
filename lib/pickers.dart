@@ -1,3 +1,4 @@
+import 'package:bibliotheca/files.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
@@ -168,18 +169,23 @@ showBookPicker(BuildContext context,
 
 showPresetPicker(BuildContext context,
     {Function(String) onPressed, String initialItem}) {
-  Map presets = loadPresets();
+  //Map presets = loadPresets();
+  List<dynamic> presets = readValue('presets_list')??[];
+  List<String> list = [];
+  for(dynamic value in presets){
+    list.add(value.toString());
+  }
 
   PlatformProvider.of(context).platform == TargetPlatform.iOS
       ? iosPicker(
           context: context,
-          entriesList: presets.keys.toList(),
+          entriesList: list,
           initialItem: initialItem,
           onPressed: onPressed) //_bookPickerIOS(context, books)
       : androidPicker(
           context: context,
           title: 'Choose a Preset',
           initialItem: initialItem,
-          entriesList: presets.keys.toList(),
+          entriesList: list,
           onPressed: onPressed);
 }

@@ -1,6 +1,7 @@
 import 'package:bibliotheca/metadata.dart';
 import 'package:bibliotheca/pickers.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -26,38 +27,31 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   }
 
   Widget _item(
-      {String title, String subtitle, Function onTap, bool enabled = true}) {
-    if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
-      return Material(
-        child: ListTile(
-          title: Text(title),
-          subtitle: subtitle != null ? Text(subtitle) : null,
-          onTap: onTap,
-          enabled: enabled,
-        ),
-      );
-    } else {
-      return ListTile(
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-        onTap: onTap,
-        enabled: enabled,
-      );
-    }
+      {Widget title, Widget subtitle, Function onTap, bool enabled = true}) {
+    return platformListTile(
+      context,
+      title: title,
+      subtitle: subtitle,
+      onTap: onTap,
+      enabled: enabled,
+    );
   }
 
   Widget _switchItem(
-      {String title, bool initialValue, Function(bool) onToggle}) {
+      {Widget title, bool initialValue, Function(bool) onToggle}) {
     bool val = initialValue;
-    return SwitchListTile.adaptive(
-        title: Text(title),
-        value: val,
-        onChanged: (value) {
-          setState(() {
-            val = value;
-            onToggle(val);
-          });
-        });
+
+    return platformListTile(context,
+        title: title,
+        trailing: Switch.adaptive(
+          value: val,
+          onChanged: (value) {
+            setState(() {
+              val = value;
+              onToggle(val);
+            });
+          },
+        ));
   }
 
   @override
@@ -69,7 +63,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           children: <Widget>[
             _title('Viewer'),
             _switchItem(
-              title: 'Search bar on top',
+              title: platformText(context, 'Search bar on top'),
               initialValue: readValue('search_on_top') ?? true,
               onToggle: (value) {
                 setState(() {
@@ -78,10 +72,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               },
             ),
             _item(
-                title: 'Search history',
+                title: platformText(context, 'Search history'),
                 subtitle: readValue('history_limit') == 0
-                    ? 'Don\'t save history'
-                    : 'Last ${readValue('history_limit')} searches',
+                    ? platformText(context, 'Don\'t save history')
+                    : platformText(
+                        context, 'Last ${readValue('history_limit')} searches'),
                 onTap: () {
                   androidPicker(
                     context: context,
@@ -111,7 +106,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   );
                 }),
             _item(
-              title: 'Clear search history',
+              title: platformText(context, 'Clear search history'),
               enabled: !_searchEmpty,
               onTap: () {
                 persistValue('history', null);
@@ -122,7 +117,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             _title('Book Manager'),
             _switchItem(
-              title: 'Download over mobile connection',
+              title: platformText(context, 'Download over mobile connection'),
               initialValue: false,
               onToggle: (value) {
                 setState(() {
@@ -131,18 +126,24 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               },
             ),
             _item(
-              title: 'Presets',
-            ),
+                title: platformText(context, 'Presets'),
+                onTap: () => Navigator.push(
+                    context,
+                    platformPageRoute(
+                      context: context,
+                      iosTitle: 'Presets',
+                      builder: (context) => PresetsWidget(),
+                    ))),
             _item(
-              title: 'Unlock extras',
+              title: platformText(context, 'Unlock extras'),
               onTap: () => _unlockBook(context),
             ),
             _title('Miscellaneous'),
-            _item(title: 'Help'),
-            _item(title: 'Contact Us'),
-            _item(title: 'About the Creator'),
-            _item(title: 'Support the Creator'),
-            _item(title: 'About the App'),
+            _item(title: platformText(context, 'Help')),
+            _item(title: platformText(context, 'Contact Us')),
+            _item(title: platformText(context, 'About the Creator')),
+            _item(title: platformText(context, 'Support the Creator')),
+            _item(title: platformText(context, 'About the App')),
           ],
         ),
       ],
@@ -168,39 +169,46 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       _searchEmpty = false;
     });
   }
-  
-  _unlock(BuildContext context, String password) async{
+
+  _unlock(BuildContext context, String password) async {
     List<BiblionMetadata> metadata = await Metadata.getAll();
-    
-    for(BiblionMetadata meta in metadata){
-      if(meta.password == password.toUpperCase()){
+
+    for (BiblionMetadata meta in metadata) {
+      if (meta.password == password.toUpperCase()) {
         persistValue('${meta.id}_unlocked', 'true');
-        showPlatformDialog(context: context, builder: (_) => PlatformAlertDialog(
-          title: Text('Book Unlocked'),
-          content: Text('${meta.shortname} is now unlocked'),
-          actions: <Widget>[
-            PlatformDialogAction(
-              child: Text('OK'),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
-        ));
+        showPlatformDialog(
+            context: context,
+            builder: (_) => PlatformAlertDialog(
+                  title: platformText(context, 'Book Unlocked'),
+                  content: platformText(
+                      context, '${meta.shortname} is now unlocked'),
+                  actions: <Widget>[
+                    PlatformDialogAction(
+                      child: Text('OK'),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  ],
+                ));
         return;
       }
     }
-    showPlatformDialog(context: context, builder: (_) => PlatformAlertDialog(
-      title: Text('Invalid Code'),
-      content: Text('The code you entered was incorrect. Please try again'),
-      actions: <Widget>[
-        PlatformDialogAction(
-          child: Text('OK'),
-          onPressed: () => Navigator.pop(context),
-        )
-      ],
-    ));
+    showPlatformDialog(
+        context: context,
+        builder: (_) => PlatformAlertDialog(
+              title: Text('Invalid Code'),
+              content:
+                  Text('The code you entered was incorrect. Please try again'),
+              actions: <Widget>[
+                PlatformDialogAction(
+                  child: Text('OK'),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ));
   }
-  
+
   TextEditingController textController;
+
   _unlockBook(BuildContext context) {
     textController = TextEditingController();
     bool filled = false;
@@ -215,7 +223,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     RichText(
                       text: TextSpan(children: [
                         TextSpan(
-                          style: Theme.of(context).textTheme.bodyText2,
+                            style: PlatformProvider.of(context).platform ==
+                                    TargetPlatform.iOS
+                                ? CupertinoTheme.of(context).textTheme.textStyle
+                                : Theme.of(context).textTheme.bodyText2,
                             text:
                                 'Extra books can be unlocked using codes from my '),
                         TextSpan(
@@ -244,13 +255,146 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   ),
                   PlatformDialogAction(
                     child: PlatformText('Unlock'),
-                    onPressed: filled ? () {
-                      _unlock(context, textController.text);
-                      textController.clear();
-                    }: null,
+                    onPressed: filled
+                        ? () {
+                            _unlock(context, textController.text);
+                            textController.clear();
+                          }
+                        : null,
                   ),
                 ],
               )),
     );
+  }
+}
+
+Widget platformText(BuildContext context, String text) {
+  if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
+    return Text(
+      text,
+      style: CupertinoTheme.of(context).textTheme.textStyle,
+    );
+  } else {
+    return Text(text);
+  }
+}
+
+Widget platformListTile(BuildContext context,
+    {Widget leading,
+    Widget title,
+    Widget subtitle,
+    Widget trailing,
+    Function onTap,
+    bool enabled = true,
+    Key key}) {
+  if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        key: key,
+        onTap: onTap,
+        leading: leading,
+        title: title,
+        subtitle: subtitle,
+        trailing: trailing,
+        enabled: enabled,
+      ),
+    );
+  } else {
+    return ListTile(
+      key: key,
+      onTap: onTap,
+      leading: leading,
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      enabled: enabled,
+    );
+  }
+}
+
+class PresetsWidget extends StatefulWidget {
+  @override
+  _PresetsWidgetState createState() => _PresetsWidgetState();
+}
+
+class _PresetsWidgetState extends State<PresetsWidget> {
+  @override
+  Widget build(BuildContext context) {
+    List<dynamic> presets = readValue('presets_list');
+    Widget widget;
+    print(presets == []);
+    if (presets == null || presets == [] || true) {
+      widget = Center(
+        child: platformText(context, 'Reorder, rename, and delete your presets here.'),
+      );
+    } else {
+      widget = ReorderableListView(
+        children: [
+          for (String name in presets)
+            platformListTile(context,
+                key: ValueKey(name),
+                leading: Icon(PlatformIcons(context).dehaze,
+                ),
+                title: Row(
+                  children: <Widget>[
+                    platformText(
+                      context,
+                      name,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: PlatformIconButton(
+                        iosIcon: Icon(CupertinoIcons.pencil),
+                        androidIcon: Icon(Icons.edit),
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: PlatformIconButton(
+                  iosIcon: Icon(CupertinoIcons.delete),
+                  androidIcon: Icon(Icons.delete),
+                  color: Colors.red,
+                  onPressed: () {
+                    setState(() {
+                      presets.removeWhere((element) => element == name);
+                      persistValue('presets_list', presets);
+                    });
+                  },
+                ))
+        ],
+        onReorder: (oldIndex, newIndex) {
+          setState(
+            () {
+              if (newIndex > oldIndex) {
+                newIndex -= 1;
+              }
+              final String item = presets.removeAt(oldIndex);
+              presets.insert(newIndex, item);
+              persistValue('presets_list', presets);
+            },
+          );
+        },
+      );
+    }
+    return PlatformScaffold(
+        appBar: PlatformAppBar(
+//          leading: PlatformIconButton(
+//            androidIcon: Icon(Icons.arrow_back),
+//            iosIcon: Icon(CupertinoIcons.back, color: CupertinoColors.white),
+//            cupertino: (context, _) => CupertinoIconButtonData(
+//              padding: const EdgeInsets.only(bottom: 4.0),
+//            ),
+//            onPressed: () => Navigator.pop(context),
+//          ),
+          cupertino: (_, __) => CupertinoNavigationBarData(
+            backgroundColor: CupertinoDynamicColor.withBrightness(
+                color: Theme.of(context).primaryColor,
+                darkColor: Color(0xF01D1D1D)),
+            transitionBetweenRoutes: false,
+          ),
+        ),
+        body: widget,
+      );
   }
 }

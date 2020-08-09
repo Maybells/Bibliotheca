@@ -519,13 +519,17 @@ class _BibliaWidgetState extends State<BibliaWidget>
                     child: Text('OK'),
                     onPressed: () {
                       Map<String, dynamic> save = readValue('presets');
+                      List<dynamic> presetsList = readValue('presets_list');
 
-                      if (save == null) {
+                      if (save == null || presetsList == null) {
                         save = Map();
+                        presetsList = [];
                       }
 
                       save[controller.text] = preset;
+                      presetsList.add(controller.text);
                       persistValue('presets', save);
+                      persistValue('presets_list', presetsList);
                       persistValue('current_preset', controller.text);
                       Navigator.of(context).pop();
                     },
