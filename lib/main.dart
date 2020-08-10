@@ -51,6 +51,13 @@ final materialDarkThemeData = ThemeData(
 final cupertinoThemeData = CupertinoThemeData(
     primaryColor: CupertinoDynamicColor.withBrightness(color: CupertinoColors.black, darkColor: CupertinoColors.white),
     textTheme: const CupertinoTextThemeData(
+      navActionTextStyle: const TextStyle(
+        color: CupertinoColors.white,
+      ),
+//        navTitleTextStyle: const TextStyle(
+//          color: CupertinoColors.white,
+//          fontSize: 24.0,
+//        ),
         textStyle: const TextStyle(
       color: CupertinoDynamicColor.withBrightness(
           color: CupertinoColors.black, darkColor: CupertinoColors.white),

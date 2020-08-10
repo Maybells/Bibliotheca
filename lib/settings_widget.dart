@@ -365,6 +365,40 @@ class _PresetsWidgetState extends State<PresetsWidget> {
                   child: PlatformIconButton(
                     iosIcon: Icon(CupertinoIcons.pencil),
                     androidIcon: Icon(Icons.edit),
+                    onPressed: (){
+                      TextEditingController controller = TextEditingController(text: name);
+                      showPlatformDialog(context: context, builder: (_) => PlatformAlertDialog(
+                        title: Text('Rename to'),
+                        content: PlatformTextField(
+                          controller: controller,
+                        ),
+                        actions: <Widget>[
+                          PlatformDialogAction(
+                            child: PlatformText('Cancel'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          PlatformDialogAction(
+                            child: PlatformText('OK'),
+                            onPressed: () {
+                              setState(() {
+                                if(controller.text != ''){
+                                  // Copy map[name] to map[newname]
+                                  Map<String, dynamic> sets = readValue('presets');
+                                  sets[controller.text] = sets[name];
+                                  persistValue('presets', sets);
+
+                                  // Delete index of name and add newname there
+                                  int index = presets.indexOf(name);
+                                  presets.removeAt(index);
+                                  presets.insert(index, controller.text);
+                                }
+                              });
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      ));
+                    },
                   ),
                 ),
               ],
@@ -409,6 +443,7 @@ class _PresetsWidgetState extends State<PresetsWidget> {
                 color: Theme.of(context).primaryColor,
                 darkColor: Color(0xF01D1D1D)),
             transitionBetweenRoutes: false,
+            title: Text('Presets', style: const TextStyle(color: CupertinoColors.white),),
           ),
           material: (_, __) => MaterialAppBarData(
             title: Text('Presets'),
