@@ -94,7 +94,7 @@ iosPicker(
         CupertinoButton(
           child: Text(
             'OK',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0, color: CupertinoColors.activeBlue),
           ),
           onPressed: () {
             onPressed(current);
@@ -161,7 +161,7 @@ showBookPicker(BuildContext context,
               entriesMap: books,
               initialItem: initialItem,
               onPressed: onPressed);
-    }else{
+    } else {
       noBooksWarning(context);
     }
   });
@@ -170,9 +170,9 @@ showBookPicker(BuildContext context,
 showPresetPicker(BuildContext context,
     {Function(String) onPressed, String initialItem}) {
   //Map presets = loadPresets();
-  List<dynamic> presets = readValue('presets_list')??[];
+  List<dynamic> presets = readValue('presets_list') ?? [];
   List<String> list = [];
-  for(dynamic value in presets){
+  for (dynamic value in presets) {
     list.add(value.toString());
   }
 
@@ -188,4 +188,25 @@ showPresetPicker(BuildContext context,
           initialItem: initialItem,
           entriesList: list,
           onPressed: onPressed);
+}
+
+showStringPicker(BuildContext context,
+    {String title,
+    List<String> list,
+    String initialItem,
+    Function(String) onPressed}) {
+  PlatformProvider.of(context).platform == TargetPlatform.iOS
+      ? iosPicker(
+          context: context,
+          entriesList: list,
+          initialItem: initialItem,
+          onPressed: onPressed,
+        )
+      : androidPicker(
+          context: context,
+          entriesList: list,
+          initialItem: initialItem,
+          title: title,
+          onPressed: onPressed,
+        );
 }

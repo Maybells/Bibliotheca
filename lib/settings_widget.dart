@@ -78,10 +78,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     : platformText(
                         context, 'Last ${readValue('history_limit')} searches'),
                 onTap: () {
-                  androidPicker(
-                    context: context,
+                  showStringPicker(
+                    context,
                     initialItem: readValue('history_limit').toString(),
-                    entriesList: [
+                    list: [
                       for (int i = 0; i <= 6; i++) (i * 5).toString()
                     ],
                     title: 'Search History',
@@ -140,9 +140,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             _title('Miscellaneous'),
             _item(title: platformText(context, 'Help')),
-            _item(title: platformText(context, 'Contact Us')),
+            _item(title: platformText(context, 'Contact Us'),
+            onTap: () => launch('mailto:bibliotheca@bibliothecauraniae.com')),
             _item(title: platformText(context, 'About the Creator')),
-            _item(title: platformText(context, 'Support the Creator')),
+            _item(title: platformText(context, 'Support the Creator'),
+                onTap: () => launch('https://www.patreon.com/uraniae')),
             _item(title: platformText(context, 'About the App')),
           ],
         ),
@@ -329,30 +331,36 @@ class _PresetsWidgetState extends State<PresetsWidget> {
             key: ValueKey(name),
             leading: PlatformProvider.of(context).platform == TargetPlatform.iOS
                 ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                PlatformIconButton(
-                  icon: Icon(CupertinoIcons.up_arrow),
-                  onPressed: presets.indexOf(name) == 0 ? null
-                      :(){
-                    int index = presets.indexOf(name);
-                    if(index > 0){
-                      _onReorder(index, index-1, presets: presets);
-                    }
-                  },
-                ),
-                PlatformIconButton(
-                  icon: Icon(CupertinoIcons.down_arrow,),
-                  onPressed: presets.indexOf(name) == presets.length-1 ? null
-                      :(){
-                    int index = presets.indexOf(name);
-                    if(index > -1 && index < presets.length-1){
-                      _onReorder(index, index+2, presets: presets);
-                    }
-                  },
-                ),
-              ],
-            )
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      PlatformIconButton(
+                        icon: Icon(CupertinoIcons.up_arrow),
+                        onPressed: presets.indexOf(name) == 0
+                            ? null
+                            : () {
+                                int index = presets.indexOf(name);
+                                if (index > 0) {
+                                  _onReorder(index, index - 1,
+                                      presets: presets);
+                                }
+                              },
+                      ),
+                      PlatformIconButton(
+                        icon: Icon(
+                          CupertinoIcons.down_arrow,
+                        ),
+                        onPressed: presets.indexOf(name) == presets.length - 1
+                            ? null
+                            : () {
+                                int index = presets.indexOf(name);
+                                if (index > -1 && index < presets.length - 1) {
+                                  _onReorder(index, index + 2,
+                                      presets: presets);
+                                }
+                              },
+                      ),
+                    ],
+                  )
                 : Icon(Icons.reorder),
             title: Row(
               children: <Widget>[
@@ -365,47 +373,58 @@ class _PresetsWidgetState extends State<PresetsWidget> {
                   child: PlatformIconButton(
                     iosIcon: Icon(CupertinoIcons.pencil),
                     androidIcon: Icon(Icons.edit),
-                    onPressed: (){
-                      TextEditingController controller = TextEditingController(text: name);
-                      showPlatformDialog(context: context, builder: (_) => PlatformAlertDialog(
-                        title: Text('Rename to'),
-                        content: PlatformTextField(
-                          controller: controller,
-                        ),
-                        actions: <Widget>[
-                          PlatformDialogAction(
-                            child: PlatformText('Cancel'),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          PlatformDialogAction(
-                            child: PlatformText('OK'),
-                            onPressed: () {
-                              setState(() {
-                                if(controller.text != ''){
-                                  // Copy map[name] to map[newname]
-                                  Map<String, dynamic> sets = readValue('presets');
-                                  sets[controller.text] = sets[name];
-                                  persistValue('presets', sets);
+                    onPressed: () {
+                      TextEditingController controller =
+                          TextEditingController(text: name);
+                      showPlatformDialog(
+                          context: context,
+                          builder: (_) => PlatformAlertDialog(
+                                title: Text('Rename to'),
+                                content: PlatformTextField(
+                                  controller: controller,
+                                ),
+                                actions: <Widget>[
+                                  PlatformDialogAction(
+                                    child: PlatformText('Cancel'),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  PlatformDialogAction(
+                                    child: PlatformText('OK'),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (controller.text != '') {
+                                          // Copy map[name] to map[newname]
+                                          Map<String, dynamic> sets =
+                                              readValue('presets');
+                                          sets[controller.text] = sets[name];
+                                          persistValue('presets', sets);
 
-                                  // Delete index of name and add newname there
-                                  int index = presets.indexOf(name);
-                                  presets.removeAt(index);
-                                  presets.insert(index, controller.text);
-                                }
-                              });
-                              Navigator.pop(context);
-                            },
-                          )
-                        ],
-                      ));
+                                          // Delete index of name and add newname there
+                                          int index = presets.indexOf(name);
+                                          presets.removeAt(index);
+                                          presets.insert(
+                                              index, controller.text);
+                                        }
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                ],
+                              ));
                     },
                   ),
                 ),
               ],
             ),
             trailing: PlatformIconButton(
-              iosIcon: Icon(CupertinoIcons.delete, color: CupertinoColors.destructiveRed,),
-              androidIcon: Icon(Icons.delete, color: Colors.red,),
+              iosIcon: Icon(
+                CupertinoIcons.delete,
+                color: CupertinoColors.destructiveRed,
+              ),
+              androidIcon: Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
               onPressed: () {
                 setState(() {
                   presets.removeWhere((element) => element == name);
@@ -416,20 +435,22 @@ class _PresetsWidgetState extends State<PresetsWidget> {
     ];
     if (presets == null || presets.isEmpty) {
       widget = Center(
-        child: platformText(context, 'Reorder, rename, and delete your presets here.'),
+        child: platformText(
+            context, 'Reorder, rename, and delete your presets here.'),
       );
-    } else if(PlatformProvider.of(context).platform == TargetPlatform.iOS){
+    } else if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
       widget = ListView(
         children: children,
       );
-    }else{
+    } else {
       widget = ReorderableListView(
         children: children,
-        onReorder: (oldIndex, newIndex) => _onReorder(oldIndex, newIndex, presets: presets),
+        onReorder: (oldIndex, newIndex) =>
+            _onReorder(oldIndex, newIndex, presets: presets),
       );
     }
     return PlatformScaffold(
-        appBar: PlatformAppBar(
+      appBar: PlatformAppBar(
 //          leading: PlatformIconButton(
 //            androidIcon: Icon(Icons.arrow_back),
 //            iosIcon: Icon(CupertinoIcons.back, color: CupertinoColors.white),
@@ -438,24 +459,27 @@ class _PresetsWidgetState extends State<PresetsWidget> {
 //            ),
 //            onPressed: () => Navigator.pop(context),
 //          ),
-          cupertino: (_, __) => CupertinoNavigationBarData(
-            backgroundColor: CupertinoDynamicColor.withBrightness(
-                color: Theme.of(context).primaryColor,
-                darkColor: Color(0xF01D1D1D)),
-            transitionBetweenRoutes: false,
-            title: Text('Presets', style: const TextStyle(color: CupertinoColors.white),),
-          ),
-          material: (_, __) => MaterialAppBarData(
-            title: Text('Presets'),
+        cupertino: (_, __) => CupertinoNavigationBarData(
+          backgroundColor: CupertinoDynamicColor.withBrightness(
+              color: Theme.of(context).primaryColor,
+              darkColor: Color(0xF01D1D1D)),
+          transitionBetweenRoutes: false,
+          title: Text(
+            'Presets',
+            style: const TextStyle(color: CupertinoColors.white),
           ),
         ),
-        body: widget,
-      );
+        material: (_, __) => MaterialAppBarData(
+          title: Text('Presets'),
+        ),
+      ),
+      body: widget,
+    );
   }
 
-  _onReorder(int oldIndex, int newIndex, {List<dynamic> presets}){
+  _onReorder(int oldIndex, int newIndex, {List<dynamic> presets}) {
     setState(
-          () {
+      () {
         if (newIndex > oldIndex) {
           newIndex -= 1;
         }
