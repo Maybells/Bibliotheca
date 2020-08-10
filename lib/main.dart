@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:bibliotheca/biblia_widget.dart';
+import 'package:bibliotheca/help_widget.dart';
 import 'package:bibliotheca/settings_widget.dart';
 import 'package:bibliotheca/viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,7 +83,7 @@ class MyApp extends StatelessWidget {
     ));
 
     return PlatformProvider(
-      initialPlatform: TargetPlatform.iOS,
+      initialPlatform: TargetPlatform.android,
       builder: (context) => GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
@@ -183,7 +184,10 @@ class _MyHomePageState extends State<MyHomePage> {
         trailingActions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.help_outline),
+            child: PlatformIconButton(
+              icon: Icon(Icons.help_outline),
+              onPressed: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
+            ),
           ),
         ],
         title: Row(
