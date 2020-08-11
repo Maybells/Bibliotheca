@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:photo_view/photo_view.dart';
@@ -69,7 +69,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
   @override
   dispose() {
     _controller.dispose();
-    stopListen(_handleActiveChanged());
     super.dispose();
   }
 
@@ -427,10 +426,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     if(page.existsSync()){
       return FileImage(page);
     }else{
-      return AdvancedNetworkImage(_getImageUrl(index),
-          useDiskCache: true,
-          cacheRule: CacheRule(maxAge: const Duration(days: 7)),
-          timeoutDuration: Duration(minutes: 1));
+//      return AdvancedNetworkImage(_getImageUrl(index),
+//          useDiskCache: true,
+//          cacheRule: CacheRule(maxAge: const Duration(days: 7)),
+//          timeoutDuration: Duration(minutes: 1));
+      return CachedNetworkImageProvider(
+          _getImageUrl(index),
+      );
     }
   }
 

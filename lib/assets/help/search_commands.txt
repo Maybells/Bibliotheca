@@ -1,0 +1,13 @@
+Search Commands:
+
+/t or /title = go to title
+
+/abbr = go to abbreviations (if available)
+
+/f or /first = go to first page
+
+/l or /last = go to last page
+
+/r or /random = go to random page
+
+/X means go to page X where X is any whole number, so /5 would take you to page 5 and /501 to page 501
