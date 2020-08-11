@@ -101,9 +101,11 @@ class TextFileWidget extends StatelessWidget {
         future: loadAsset(context, filename),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(snapshot.data, style: TextStyle(fontSize: 20.0),),
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(snapshot.data, style: TextStyle(fontSize: 20.0),),
+              ),
             );
           } else {
             return Container();

@@ -1,0 +1,57 @@
+The following information was adapted from Seumas Macdonald's 'Greek Grammar terms in Greek'
+
+Parts of Speech:
+ὄνομα = noun
+ῥῆμα = verb
+ἐπίθετον = adjective
+ἐπίρρημα = adverb
+ἄρθρον = article
+προθέσις = preposition
+σύνδεσμος = conjunction
+ἐπίφθεγμα = interjection
+μόριον = particle
+μετοχή = participle
+ἀντωνυμία = pronoun
+
+Case (πτῶσις):
+ὀνομαστική = nominative
+αἰτιατική = accusative
+γενική = genitive
+δοτική = dative
+κλητική = vocative
+
+Gender (γένος):
+θηλυκόν = feminine
+ἀρσενικόν = masculine
+οὐδέτερον = neuter
+κοινόν = common
+
+Number (ἀριθμός):
+ἑνικός = singular
+πληθυντικός = plural
+δυϊκός = dual
+
+Tense (χρόνος):
+ἐνεστώς = present
+μέλλων = future
+ἀόριστος = aorist
+παρατακτικός = imperfect
+παρακείμενος = perfect
+ὑπερσυντελικός = pluperfect
+
+Voice (διάθεσις):
+ἐνεργετική = active
+μέση = middle
+παθητική = passive
+
+Mood (ἔγκλισις):
+ὁριστική = indicative
+προστακτική = imperative
+ὑποτακτική = subjunctive
+εὐκτική = optative
+ἀπαρέμφατος = infinitive
+
+Degree of Adjective:
+θετικόν = positive
+συγκριτικόν = comparative
+ὑπερθετικόν = superlative
