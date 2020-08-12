@@ -81,9 +81,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   showStringPicker(
                     context,
                     initialItem: readValue('history_limit').toString(),
-                    list: [
-                      for (int i = 0; i <= 6; i++) (i * 5).toString()
-                    ],
+                    list: [for (int i = 0; i <= 6; i++) (i * 5).toString()],
                     title: 'Search History',
                     onPressed: (value) {
                       int val = int.parse(value);
@@ -140,10 +138,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             _title('Miscellaneous'),
             _item(title: platformText(context, 'Help')),
-            _item(title: platformText(context, 'Contact Us'),
-            onTap: () => launch('mailto:bibliotheca@bibliothecauraniae.com')),
+            _item(
+                title: platformText(context, 'Contact Us'),
+                onTap: () =>
+                    launch('mailto:bibliotheca@bibliothecauraniae.com')),
             _item(title: platformText(context, 'About the Creator')),
-            _item(title: platformText(context, 'Support the Creator'),
+            _item(
+                title: platformText(context, 'Support the Creator'),
                 onTap: () => launch('https://www.patreon.com/uraniae')),
             _item(title: platformText(context, 'About the App')),
           ],
@@ -321,11 +322,8 @@ class PresetsWidget extends StatefulWidget {
 }
 
 class _PresetsWidgetState extends State<PresetsWidget> {
-  @override
-  Widget build(BuildContext context) {
-    List<dynamic> presets = readValue('presets_list');
-    Widget widget;
-    List<Widget> children = [
+  List<Widget> _generateChildren(List<dynamic> presets) {
+    return [
       for (String name in presets)
         platformListTile(context,
             key: ValueKey(name),
@@ -433,6 +431,12 @@ class _PresetsWidgetState extends State<PresetsWidget> {
               },
             ))
     ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<dynamic> presets = readValue('presets_list');
+    Widget widget;
     if (presets == null || presets.isEmpty) {
       widget = Center(
         child: platformText(
@@ -440,11 +444,11 @@ class _PresetsWidgetState extends State<PresetsWidget> {
       );
     } else if (PlatformProvider.of(context).platform == TargetPlatform.iOS) {
       widget = ListView(
-        children: children,
+        children: _generateChildren(presets),
       );
     } else {
       widget = ReorderableListView(
-        children: children,
+        children: _generateChildren(presets),
         onReorder: (oldIndex, newIndex) =>
             _onReorder(oldIndex, newIndex, presets: presets),
       );
