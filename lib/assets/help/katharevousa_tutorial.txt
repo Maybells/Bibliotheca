@@ -1,13 +1,14 @@
-Brief Guide to Katharevousa Greek:
+Katharevousa never had a standardized form, since each author would use some ancient features while modernizing others. As such, each author's Katharevousa is different, ranging from almost fully Classical to almost fully Modern. However, there are some common features which have been listed below.
 
-οἶκός της = οἶκος αὐτῆς
 
-τὸ νὰ ἐργάζηται = τὸ ἐργάζεσθαι
+A Brief Guide to Katharevousa Greek:
 
-δύναται νὰ ποιῇ = δύναται ποιεῖν
+An unaccented form of the article is used as an enclitic third person pronoun. For example, the Classical οἶκος αὐτῆς might appear instead as οἶκός της.
 
-δέν = οὐ(κ)
+The infinitive is commonly replaced by νά + the subjunctive. So δύναται ποιεῖν becomes δύναται νὰ ποιῇ and τὸ ἐργάζεσθαι becomes τὸ νὰ ἐργάζηται.
 
-με as a preposition means "with"
+οὐ(κ) is commonly replaced with δέν as the negative adverb, but μή remains with the same usage.
 
-forms of ὁ ὁποῖος as a relative pronoun
+The preposition με is common and means "with" replacing the dative of instrument and some uses of μετά.
+
+Forms of ὁ ὁποῖος are used as a relative pronoun in addition to the more Classical ὅς and ὅστις.

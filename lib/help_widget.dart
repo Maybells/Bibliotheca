@@ -8,21 +8,19 @@ class HelpWidget extends StatelessWidget {
   static const List<String> items = [
     'How to Use App',
     'Report an Issue',
-    'Downloading Books',
+    'Search Commands',
+    'Grammatical Terms in Greek',
     'What is Katharevousa?',
     'How to Read Katharevousa',
-    'Grammatical Terms in Greek',
-    'Search Commands',
   ];
 
   static const List<String> files = [
     'tutorial',
     '',
-    'downloading',
+    'search_commands',
+    'greek_terms',
     'katharevousa_history',
     'katharevousa_tutorial',
-    'greek_terms',
-    'search_commands',
   ];
 
   @override
