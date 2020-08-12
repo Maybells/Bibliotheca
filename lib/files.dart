@@ -185,7 +185,7 @@ class Biblion {
         case 's':
         case 'σ':
         case 'ς':
-          if(i == input.length-1){
+          if(i > 0 && i == input.length-1){
             output = output + "ς";
           }else{
             output = output + "σ";
