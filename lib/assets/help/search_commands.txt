@@ -1,13 +1,13 @@
-Search Commands:
+__Search Commands:__
 
-/t or /title = go to title
+__/t__ or __/title__ = go to title
 
-/abbr = go to abbreviations (if available)
+__/abbr__ = go to abbreviations (if available)
 
-/f or /first = go to first page
+__/f__ or __/first__ = go to first page
 
-/l or /last = go to last page
+__/l__ or __/last__ = go to last page
 
-/r or /random = go to random page
+__/r__ or __/rand__ or __/random__ = go to random page
 
-/X means go to page X where X is any whole number, so /5 would take you to page 5 and /501 to page 501
+__/X__ means go to page __X__ where __X__ is any whole number, so __/5__ would take you to page __5__ and __/501__ to page __501__

@@ -1,3 +1,4 @@
+import 'package:Bibliotheca/help_widget.dart';
 import 'package:Bibliotheca/metadata.dart';
 import 'package:Bibliotheca/pickers.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,15 +63,15 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _title('Viewer'),
-            _switchItem(
-              title: platformText(context, 'Search bar on top'),
-              initialValue: readValue('search_on_top') ?? true,
-              onToggle: (value) {
-                setState(() {
-                  persistValue('search_on_top', value);
-                });
-              },
-            ),
+//            _switchItem(
+//              title: platformText(context, 'Search bar on top'),
+//              initialValue: readValue('search_on_top') ?? true,
+//              onToggle: (value) {
+//                setState(() {
+//                  persistValue('search_on_top', value);
+//                });
+//              },
+//            ),
             _item(
                 title: platformText(context, 'Search history'),
                 subtitle: readValue('history_limit') == 0
@@ -116,7 +117,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             _title('Book Manager'),
             _switchItem(
               title: platformText(context, 'Download over mobile connection'),
-              initialValue: false,
+              initialValue: readValue('mobile_download') ?? false,
               onToggle: (value) {
                 setState(() {
                   persistValue('mobile_download', value);
@@ -137,16 +138,33 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               onTap: () => _unlockBook(context),
             ),
             _title('Miscellaneous'),
-            _item(title: platformText(context, 'Help')),
             _item(
-                title: platformText(context, 'Contact Us'),
+                title: platformText(context, 'Help'),
+                onTap: () => Navigator.push(
+                    context,
+                    platformPageRoute(
+                        context: context, builder: (context) => HelpWidget()))),
+            _item(
+                title: platformText(context, 'Contact us'),
                 onTap: () =>
                     launch('mailto:bibliotheca@bibliothecauraniae.com')),
-            _item(title: platformText(context, 'About the Creator')),
             _item(
-                title: platformText(context, 'Support the Creator'),
+                title: platformText(context, 'About us'),
+                onTap: () => Navigator.push(
+                    context,
+                    platformPageRoute(
+                        context: context,
+                        builder: (context) => TextFileWidget(
+                              title: 'About Us',
+                              filename: 'about_me',
+                            )
+                    )
+                )
+            ),
+            _item(
+                title: platformText(context, 'Support the creator'),
                 onTap: () => launch('https://www.patreon.com/uraniae')),
-            _item(title: platformText(context, 'About the App')),
+            //_item(title: platformText(context, 'About the app')),
           ],
         ),
       ],
@@ -231,7 +249,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 ? CupertinoTheme.of(context).textTheme.textStyle
                                 : Theme.of(context).textTheme.bodyText2,
                             text:
-                                'Extra books can be unlocked using codes from my '),
+                                'Extra books can be unlocked using codes from our '),
                         TextSpan(
                             text: 'Patreon page',
                             style: TextStyle(color: Colors.blue),
@@ -239,6 +257,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                               ..onTap = () {
                                 launch('https://www.patreon.com/uraniae');
                               }),
+                        TextSpan(
+                            style: PlatformProvider.of(context).platform ==
+                                TargetPlatform.iOS
+                                ? CupertinoTheme.of(context).textTheme.textStyle
+                                : Theme.of(context).textTheme.bodyText2,
+                            text:
+                            '.'),
                       ]),
                     ),
                     PlatformTextField(

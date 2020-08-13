@@ -1,14 +1,14 @@
-Katharevousa never had a standardized form, since each author would use some ancient features while modernizing others. As such, each author's Katharevousa is different, ranging from almost fully Classical to almost fully Modern. However, there are some common features which have been listed below.
+   Katharevousa never had a standardized form, since each author would use some ancient features while modernizing others. As such, each author's Katharevousa is different, ranging from almost fully Classical to almost fully Modern. However, there are some common features which have been listed below.
 
 
-A Brief Guide to Katharevousa Greek:
+__A Brief Guide to Katharevousa Greek:__
 
-An unaccented form of the article is used as an enclitic third person pronoun. For example, the Classical οἶκος αὐτῆς might appear instead as οἶκός της.
+- An unaccented form of the article is used as an enclitic third person pronoun. For example, the Classical _οἶκος αὐτῆς_ might appear instead as _οἶκός της_.
 
-The infinitive is commonly replaced by νά + the subjunctive. So δύναται ποιεῖν becomes δύναται νὰ ποιῇ and τὸ ἐργάζεσθαι becomes τὸ νὰ ἐργάζηται.
+- The infinitive is commonly replaced by _νά_ + the subjunctive. So _δύναται ποιεῖν_ becomes _δύναται νὰ ποιῇ_ and _τὸ ἐργάζεσθαι_ becomes _τὸ νὰ ἐργάζηται_.
 
-οὐ(κ) is commonly replaced with δέν as the negative adverb, but μή remains with the same usage.
+- _οὐ(κ)_ is commonly replaced with _δέν_ as the negative adverb, but _μή_ remains with the same usage.
 
-The preposition με is common and means "with" replacing the dative of instrument and some uses of μετά.
+- The preposition _με_ is common and means "with" replacing the dative of instrument and some uses of _μετά_.
 
-Forms of ὁ ὁποῖος are used as a relative pronoun in addition to the more Classical ὅς and ὅστις.
+- Forms of _ὁ ὁποῖος_ are used as a relative pronoun in addition to the more Classical _ὅς_ and _ὅστις_.

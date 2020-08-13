@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:url_launcher/url_launcher.dart';
@@ -77,6 +78,18 @@ class TextFileWidget extends StatelessWidget {
     return await DefaultAssetBundle.of(context).loadString('lib/assets/help/$name.txt');
   }
 
+  MarkdownBody _parseText(String text){
+    return MarkdownBody(
+      data: text,
+      onTapLink: (link) => launch(link),
+      styleSheet: MarkdownStyleSheet(
+        p: TextStyle(fontSize: 22.0),
+        listBullet: TextStyle(fontSize: 24.0),
+        blockSpacing: 20.0,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PlatformScaffold(
@@ -102,7 +115,7 @@ class TextFileWidget extends StatelessWidget {
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(snapshot.data, style: TextStyle(fontSize: 20.0),),
+                child: _parseText(snapshot.data), //Text(snapshot.data, style: TextStyle(fontSize: 20.0),),
               ),
             );
           } else {

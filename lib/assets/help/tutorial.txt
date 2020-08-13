@@ -1,8 +1,6 @@
-Viewer Tab:
-
+__Viewer Tab:__\
 The viewer is the core of the app. Select the book you want to search with the menu in the top right and search using the search bar. Your input will automatically be converted from beta code to Greek characters and vice versa depending on the book. The viewer will take you to the page containing your search. In addition, you can switch between saved presets using the menu in the top left.
 
 
-Book Manager Tab:
-
+__Book Manager Tab:__\
 The book manager allows you to see details about each book and turn them on or off. Only books that are on are visible and searchable in the viewer tab. You can also download books for offline use. Finally, you can save a set of active books as a preset, which allows you to easily return to them later.

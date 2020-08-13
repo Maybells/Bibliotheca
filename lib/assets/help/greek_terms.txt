@@ -1,57 +1,57 @@
-The following information was adapted from Seumas Macdonald's 'Greek Grammar terms in Greek'
+   The following information was adapted from Seumas Macdonald's [Greek Grammar terms in Greek](https://thepatrologist.com/2020/07/21/a-cheat-sheet-for-greek-grammar-terms/).
 
-Parts of Speech:
-ὄνομα = noun
-ῥῆμα = verb
-ἐπίθετον = adjective
-ἐπίρρημα = adverb
-ἄρθρον = article
-προθέσις = preposition
-σύνδεσμος = conjunction
-ἐπίφθεγμα = interjection
-μόριον = particle
-μετοχή = participle
+__Parts of Speech:__\
+ὄνομα = noun\
+ῥῆμα = verb\
+ἐπίθετον = adjective\
+ἐπίρρημα = adverb\
+ἄρθρον = article\
+προθέσις = preposition\
+σύνδεσμος = conjunction\
+ἐπίφθεγμα = interjection\
+μόριον = particle\
+μετοχή = participle\
 ἀντωνυμία = pronoun
 
-Case (πτῶσις):
-ὀνομαστική = nominative
-αἰτιατική = accusative
-γενική = genitive
-δοτική = dative
+__Case (πτῶσις):__\
+ὀνομαστική = nominative\
+αἰτιατική = accusative\
+γενική = genitive\
+δοτική = dative\
 κλητική = vocative
 
-Gender (γένος):
-θηλυκόν = feminine
-ἀρσενικόν = masculine
-οὐδέτερον = neuter
+__Gender (γένος):__\
+θηλυκόν = feminine\
+ἀρσενικόν = masculine\
+οὐδέτερον = neuter\
 κοινόν = common
 
-Number (ἀριθμός):
-ἑνικός = singular
-πληθυντικός = plural
+__Number (ἀριθμός):__\
+ἑνικός = singular\
+πληθυντικός = plural\
 δυϊκός = dual
 
-Tense (χρόνος):
-ἐνεστώς = present
-μέλλων = future
-ἀόριστος = aorist
-παρατακτικός = imperfect
-παρακείμενος = perfect
+__Tense (χρόνος):__\
+ἐνεστώς = present\
+μέλλων = future\
+ἀόριστος = aorist\
+παρατακτικός = imperfect\
+παρακείμενος = perfect\
 ὑπερσυντελικός = pluperfect
 
-Voice (διάθεσις):
-ἐνεργετική = active
-μέση = middle
+__Voice (διάθεσις):__\
+ἐνεργετική = active\
+μέση = middle\
 παθητική = passive
 
-Mood (ἔγκλισις):
-ὁριστική = indicative
-προστακτική = imperative
-ὑποτακτική = subjunctive
-εὐκτική = optative
+__Mood (ἔγκλισις):__\
+ὁριστική = indicative\
+προστακτική = imperative\
+ὑποτακτική = subjunctive\
+εὐκτική = optative\
 ἀπαρέμφατος = infinitive
 
-Degree of Adjective:
-θετικόν = positive
-συγκριτικόν = comparative
+__Degree of Adjective:__\
+θετικόν = positive\
+συγκριτικόν = comparative\
 ὑπερθετικόν = superlative
