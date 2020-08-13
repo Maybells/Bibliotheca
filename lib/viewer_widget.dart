@@ -53,10 +53,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     super.initState();
 
     _initializeDirectory();
+    _listenEachBook();
 
     _textController = new TextEditingController();
     _biblion = null;
-    listen(_handleActiveChanged);
+
+    final persist = GetStorage();
+    persist.listenKey('current_book', (val) => print('current_book changed'));
 
     String current = readValue('current_book');
     current == null ? _loadBiblion(widget._biblionID) : _loadBiblion(current);
@@ -64,6 +67,13 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 
   _initializeDirectory() async {
     _directory = (await getApplicationDocumentsDirectory()).path;
+  }
+
+  _listenEachBook() async {
+    List<BiblionMetadata> metadata = await Metadata.getAll();
+    for(BiblionMetadata meta in metadata){
+      listenValue('${meta.id}_active', (value) => _handleActiveChanged(meta.id, value));
+    }
   }
 
   @override
@@ -258,10 +268,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     );
   }
 
-  _handleActiveChanged() {
-    if (_biblion == null || !mounted) {
-      return;
-    }
+  _handleActiveChanged(String id, dynamic value) {
+//    if (_biblion == null || !mounted) {
+//      return;
+//    }
     if (readValue('${_lastSeen}_active') ?? true) {
       // If lastSeen is active but not visible, load it
       setState(() {
@@ -280,7 +290,7 @@ class _ViewerWidgetState extends State<ViewerWidget> {
               _hasActive = true;
               _load(biblion.id);
             });
-            break;
+            return;
           }
         }
         // If none are active, show a 'none active' page

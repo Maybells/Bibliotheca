@@ -1,9 +1,9 @@
 import 'dart:ui';
 
-import 'package:bibliotheca/biblia_widget.dart';
-import 'package:bibliotheca/help_widget.dart';
-import 'package:bibliotheca/settings_widget.dart';
-import 'package:bibliotheca/viewer_widget.dart';
+import 'package:Bibliotheca/biblia_widget.dart';
+import 'package:Bibliotheca/help_widget.dart';
+import 'package:Bibliotheca/settings_widget.dart';
+import 'package:Bibliotheca/viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 

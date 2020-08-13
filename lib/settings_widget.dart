@@ -1,5 +1,5 @@
-import 'package:bibliotheca/metadata.dart';
-import 'package:bibliotheca/pickers.dart';
+import 'package:Bibliotheca/metadata.dart';
+import 'package:Bibliotheca/pickers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
