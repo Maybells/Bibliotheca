@@ -184,12 +184,17 @@ class _MyHomePageState extends State<MyHomePage> {
         trailingActions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: PlatformIconButton(
-              icon: Icon(Icons.help_outline),
-              onPressed: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
-            ),
+//            child: PlatformIconButton(
+//              icon: Icon(Icons.help_outline),
+//              onPressed: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
+//            ),
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
+              child: Icon(Icons.help_outline),
+            )
           ),
         ],
+        leading: Icon(Icons.help_outline, color: Colors.transparent,),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
