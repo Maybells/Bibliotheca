@@ -115,12 +115,12 @@ class _BibliaWidgetState extends State<BibliaWidget>
 
       ];
       for (BiblionMetadata meta in _metadata)
-        if(!meta.hidden || readValue('${meta.id}_unlocked') == 'true')
+        if(!meta.hidden || readValue('${meta.id}_unlocked') == true)
           widgets.add(_expansionTile(context, meta));
         else
           listenValue('${meta.id}_unlocked', (value){
             setState(() {
-              meta.hidden = false;
+              meta.hidden = value;
             });
           });
 
@@ -604,6 +604,8 @@ class _BibliaWidgetState extends State<BibliaWidget>
       }else if(event is File){
         if(event.path.split('.').last == 'png'){
           event.delete();
+        }else if(event.path.split('_').last == 'unlocked.txt'){
+          persistValue(event.path.split('/').last.split('.').first, true);
         }
       }
     });

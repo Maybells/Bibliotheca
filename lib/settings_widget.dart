@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Bibliotheca/help_widget.dart';
 import 'package:Bibliotheca/metadata.dart';
 import 'package:Bibliotheca/pickers.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 import 'files.dart';
 
 class SettingsWidget extends StatefulWidget {
@@ -196,7 +199,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     for (BiblionMetadata meta in metadata) {
       if (meta.password == password.toUpperCase()) {
-        persistValue('${meta.id}_unlocked', 'true');
+        persistValue('${meta.id}_unlocked', true);
+        String directory = (await getApplicationDocumentsDirectory()).path;
+        File unlocked = File('$directory/${meta.id}_unlocked.txt');
+        await unlocked.create();
+
         showPlatformDialog(
             context: context,
             builder: (_) => PlatformAlertDialog(
