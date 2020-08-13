@@ -277,6 +277,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       controller: textController,
                       onChanged: (value) {
                         setState(() {
+                          textController.value = textController.value.copyWith(
+                            text: textController.text.toUpperCase(),
+                          );
                           filled = value.length > 0;
                         });
                       },
