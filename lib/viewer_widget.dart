@@ -59,7 +59,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     _biblion = null;
 
     final persist = GetStorage();
-    persist.listenKey('current_book', (val) => print('current_book changed'));
 
     String current = readValue('current_book');
     current == null ? _loadBiblion(widget._biblionID) : _loadBiblion(current);

@@ -31,33 +31,69 @@ androidPicker(
   current = initialItem;
   initialIndex = entries.values.toList().indexOf(initialItem);
 
-  int maxSide;
-  switch (entries.length) {
-    case 1:
-    case 2:
-      maxSide = 280;
-      break;
-    case 3:
-      maxSide = 300;
-      break;
-    default:
-      maxSide = 400;
-      break;
-  }
+  int maxSide = 400;
+//  switch (entries.length) {
+//    case 1:
+//    case 2:
+//      maxSide = 280;
+//      break;
+//    case 3:
+//      maxSide = 300;
+//      break;
+//    default:
+//      maxSide = 400;
+//      break;
+//  }
 
-  showMaterialRadioPicker(
+  showMaterialResponsiveDialog(
     context: context,
     title: title,
-    items: entries.keys.toList(),
     maxLongSide: maxSide * 1.0,
-    selectedItem: initialItem == null || initialIndex < 0
-        ? null
-        : entries.keys.toList().elementAt(initialIndex),
-    onChanged: (value) => {current = entries[value]},
     onConfirmed: () => {
       if (current != null) {onPressed(current)}
     },
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          height: 75,
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(width: 1.0, color: Theme.of(context).dividerColor), bottom: BorderSide(width: 1.0, color: Theme.of(context).dividerColor))
+          ),
+        ),
+        ListWheelScrollView(
+          itemExtent: 75,
+          physics: FixedExtentScrollPhysics(),
+          onSelectedItemChanged: (value) => {current = entries[entries.keys.toList().elementAt(value)]},
+          controller: FixedExtentScrollController(
+            initialItem: initialItem == null || initialIndex < 0
+                ? 0
+                : initialIndex,
+          ),
+          children: [
+            for(String name in entries.keys.toList())
+              Center(
+                child: Text(name, style: TextStyle(fontSize: 24.0),),
+              ),
+          ],
+        ),
+      ],
+    ),
   );
+
+//  showMaterialRadioPicker(
+//    context: context,
+//    title: title,
+//    items: entries.keys.toList(),
+//    maxLongSide: maxSide * 1.0,
+//    selectedItem: initialItem == null || initialIndex < 0
+//        ? null
+//        : entries.keys.toList().elementAt(initialIndex),
+//    onChanged: (value) => {current = entries[value]},
+//    onConfirmed: () => {
+//      if (current != null) {onPressed(current)}
+//    },
+//  );
 }
 
 iosPicker(
