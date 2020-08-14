@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 
 final materialThemeData = ThemeData(
   // ???
@@ -189,10 +190,12 @@ class _MyHomePageState extends State<MyHomePage> {
 //              icon: Icon(Icons.help_outline),
 //              onPressed: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
 //            ),
-            child: GestureDetector(
+            child: Foundation.kDebugMode
+                ? GestureDetector(
               onTap: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
               child: Icon(Icons.help_outline, color: Colors.white,),
             )
+                : Icon(Icons.help_outline, color: Colors.white,),
           ),
         ],
         leading: Icon(Icons.help_outline, color: Colors.transparent,),
