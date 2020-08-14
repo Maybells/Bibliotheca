@@ -93,8 +93,8 @@ shared_preferences: '>=0.5.y+x <2.0.0'
 
 flutter_native_splash:
   image: lib/assets/images/BibliothecaLogo.png
-  color: "#3D46A8"
-  android_disable_fullscreen: true
+  color: "#2196f3" #"#3D46A8"
+  android_disable_fullscreen: false
 
 flutter_icons:
   android: true
