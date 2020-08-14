@@ -19,7 +19,7 @@ final materialThemeData = ThemeData(
   // Switch color (and presumably other things too)
   accentColor: Colors.blue,
   // AppBar background color
-  appBarTheme: AppBarTheme(color: Colors.blue),
+  appBarTheme: AppBarTheme(color: Colors.blue), //Color(0xff3F51B5)),
   // BottomBar selected color
   primaryColor: Colors.blue,
   // ???
@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //            ),
             child: GestureDetector(
               onTap: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
-              child: Icon(Icons.help_outline),
+              child: Icon(Icons.help_outline, color: Colors.white,),
             )
           ),
         ],
