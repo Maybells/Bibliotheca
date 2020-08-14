@@ -247,6 +247,10 @@ class _BibliaWidgetState extends State<BibliaWidget>
             _displayVariable('Headword Language', meta.inLang),
             _displayVariable('Definition Language', meta.outLang),
             Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(meta.description, style: TextStyle(fontSize: 16.0),),
+            ),
+            Padding(
               padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
               child: Center(
                 child: _downloadButton(context, meta),

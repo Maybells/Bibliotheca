@@ -53,6 +53,7 @@ class BiblionMetadata {
   int abbr;
   bool hidden;
   String password;
+  String description;
 
   dynamic _data;
 
@@ -67,6 +68,7 @@ class BiblionMetadata {
     size = _read("size");
     _inLang = _read("inLang");
     _outLang = _read("outLang");
+    description = _read("description");
     hidden = _read('hidden') == 'true' ? true : false;
     if(hidden && !((readValue('${id}_unlocked'))??false)){
       active = false;
