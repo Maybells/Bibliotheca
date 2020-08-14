@@ -58,8 +58,6 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     _textController = new TextEditingController();
     _biblion = null;
 
-    final persist = GetStorage();
-
     String current = readValue('current_book');
     current == null ? _loadBiblion(widget._biblionID) : _loadBiblion(current);
   }
@@ -271,16 +269,20 @@ class _ViewerWidgetState extends State<ViewerWidget> {
 //    if (_biblion == null || !mounted) {
 //      return;
 //    }
+    //print('_handleActiveChanged called ($id, $value)');
     if (readValue('${_lastSeen}_active') ?? true) {
       // If lastSeen is active but not visible, load it
+      //print('last seen is now active, current is ${_biblion?.id}');
       setState(() {
         _hasActive = true;
         if (_lastSeen != _biblion?.id) {
+          //print('last seen is not in focus, now loading it');
           _load(_lastSeen);
         }
       });
     } else if (!(readValue('${_biblion.id}_active') ?? true)) {
       // If lastSeen is not active and current is not active, load the earliest active
+      //print('last seen and current are not active, loading first available');
       Metadata.getAll().then((List<BiblionMetadata> all) {
         all.sort((a, b) => a.shortname.compareTo(b.shortname));
         for (BiblionMetadata biblion in all) {
@@ -293,12 +295,15 @@ class _ViewerWidgetState extends State<ViewerWidget> {
           }
         }
         // If none are active, show a 'none active' page
+        //print('none are available, showing empty');
         setState(() {
           _hasActive = false;
+          _biblion?.id = null;
         });
       });
     } else {
       // Do nothing
+      //print('doing nothing');
       setState(() {
         _hasActive = true;
       });
