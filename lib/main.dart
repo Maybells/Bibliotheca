@@ -81,6 +81,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
       statusBarIconBrightness: Brightness.light,
     ));
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
 
     return PlatformProvider(
       initialPlatform: TargetPlatform.android,
