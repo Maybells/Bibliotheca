@@ -9,6 +9,8 @@ __A Brief Guide to Katharevousa Greek:__
 
 - _οὐ(κ)_ is commonly replaced with _δέν_ as the negative adverb, but _μή_ remains with the same usage.
 
+- _ἤτοι_ is used synonymously with _ἤ_ to mean "or".
+
 - The preposition _με_ is common and means "with" replacing the dative of instrument and some uses of _μετά_.
 
 - Forms of _ὁ ὁποῖος_ are used as a relative pronoun in addition to the more Classical _ὅς_ and _ὅστις_.
