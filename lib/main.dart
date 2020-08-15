@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
+import 'dart:io' show Platform;
 
 final materialThemeData = ThemeData(
   // ???
@@ -85,7 +86,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
 
     return PlatformProvider(
-      initialPlatform: TargetPlatform.android,
+      initialPlatform: Platform.isIOS ? TargetPlatform.iOS : TargetPlatform.android,
       builder: (context) => GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
