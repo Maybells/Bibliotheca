@@ -11,7 +11,8 @@ class MyExpansionTile extends StatefulWidget{
   final bool titleChevron;
   final ValueChanged<bool> onExpansionChanged;
   final Key key;
-  MyExpansionTile({this.leading, this.title, this.trailing, this.children, this.titleChevron = false, this.onExpansionChanged, this.key})
+  final ValueNotifier notifier;
+  MyExpansionTile({this.leading, this.title, this.trailing, this.children, this.titleChevron = false, this.onExpansionChanged, this.key, this.notifier})
       : assert(title != null),
         assert(children != null);
 
@@ -41,7 +42,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+    _controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
     _heightFactor = _controller.drive(_easeInTween);
     _borderColor = _controller.drive(_borderColorTween.chain(_partialTween.chain(_easeOutTween)));
     _borderBottomColor = _controller.drive(_borderColorTween.chain(_easeOutTween));
@@ -49,6 +50,15 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
     _isExpanded = PageStorage.of(context)?.readState(context) as bool ?? false;
     if(_isExpanded){
       _controller.value = 1.0;
+    }
+
+    if(widget.notifier != null){
+      widget.notifier.addListener(() {
+        print('listener called for ${widget.key}');
+        if(widget.notifier.value != widget.key){
+          collapse();
+        }
+      });
     }
   }
 
@@ -93,6 +103,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> with SingleTickerProv
     setState(() {
       _isExpanded = !_isExpanded;
       if(_isExpanded){
+        widget.notifier.value = widget.key;
         _controller.forward();
       }else{
         _controller.reverse().then((value) => setState((){}));

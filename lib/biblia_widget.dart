@@ -61,6 +61,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
   List<BiblionMetadata> _metadata;
   bool _allToggle = true;
   Map<String, DownloadProgress> _downloadButtons;
+  ValueNotifier notifier;
 
   @override
   initState() {
@@ -68,6 +69,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
 
     _downloadButtons = Map();
     _getDownloadsStatus();
+    notifier = ValueNotifier(null);
 
     if (_metadata == null) {
       Metadata.getAll().then((List<BiblionMetadata> data) {
@@ -86,9 +88,10 @@ class _BibliaWidgetState extends State<BibliaWidget>
     });
   }
 
-  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta) {
+  MyExpansionTile _expansionTile(BuildContext context, BiblionMetadata meta, ValueNotifier notifier) {
     return MyExpansionTile(
       key: PageStorageKey(meta.id),
+      notifier: notifier,
       title: Text(
         meta.shortname,
         style: (PlatformProvider.of(context).platform == TargetPlatform.iOS
@@ -116,7 +119,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
       ];
       for (BiblionMetadata meta in _metadata)
         if(!meta.hidden || readValue('${meta.id}_unlocked') == true)
-          widgets.add(_expansionTile(context, meta));
+          widgets.add(_expansionTile(context, meta, notifier));
         else
           listenValue('${meta.id}_unlocked', (value){
             setState(() {
