@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'file:///C:/AndroidStudio/Bibliotheca/bibliotheca/lib/pickers.dart';
+import 'package:Bibliotheca/pickers.dart';
 import 'package:Bibliotheca/metadata.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
