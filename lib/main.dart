@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:Bibliotheca/biblia_widget.dart';
 import 'package:Bibliotheca/help_widget.dart';
+import 'package:Bibliotheca/placeholder_widget.dart';
 import 'package:Bibliotheca/settings_widget.dart';
 import 'package:Bibliotheca/viewer_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -121,9 +122,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentTab = 0;
   final List<Widget> _children = [
-    ViewerWidget(),
-    BibliaWidget(),
-    SettingsWidget(),
+//    ViewerWidget(),
+//    BibliaWidget(),
+//    SettingsWidget(),
+    PlaceholderWidget(Colors.green),
+    PlaceholderWidget(Colors.cyan),
+    PlaceholderWidget(Colors.red),
   ];
 
   @override
