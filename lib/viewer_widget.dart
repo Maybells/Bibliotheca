@@ -412,10 +412,40 @@ class _ViewerWidgetState extends State<ViewerWidget> {
     if (saveSearch) {
       _addSearchToHistory(input);
     }
-    _gotoPage(await _biblion.search(input));
+    int page = await _biblion.search(input);
+    if(page >= 0){
+      _gotoPage(page);
+    }else{
+      await _undoHide();
+      showPlatformDialog(
+          context: context,
+          builder: (_) => PlatformAlertDialog(
+            title: Text('Extras Unlocked'),
+            content:
+            Text('Patreon extras are now unlocked. You can see more detail in the Book Manager tab'),
+            actions: <Widget>[
+              PlatformDialogAction(
+                child: Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              )
+            ],
+          ));
+    }
     setState(() {
       _searching = false;
     });
+  }
+
+  _undoHide() async {
+    List<BiblionMetadata> metadata = await Metadata.getAll();
+    File allUnlocked = File('$_directory/hidden.cfg');
+    await allUnlocked.create();
+
+    for (BiblionMetadata meta in metadata) {
+      if (meta.hidden) {
+        persistValue('${meta.id}_unhidden', true);
+      }
+    }
   }
 
   void _searchEntered(String search) async {
