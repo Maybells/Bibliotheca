@@ -118,10 +118,10 @@ class _BibliaWidgetState extends State<BibliaWidget>
 
       ];
       for (BiblionMetadata meta in _metadata)
-        if(!meta.hidden || readValue('${meta.id}_unlocked') == true)
+        if(!meta.hidden || readValue('unhidden') == true)
           widgets.add(_expansionTile(context, meta, notifier));
         else
-          listenValue('${meta.id}_unlocked', (value){
+          listenValue('unhidden', (value){
             setState(() {
               meta.hidden = value;
             });
@@ -609,10 +609,10 @@ class _BibliaWidgetState extends State<BibliaWidget>
           }
         });
       }else if(event is File){
-        if(event.path.split('.').last == 'png'){
+        if(event.path.split('.').last == 'pdf'){
           event.delete();
-        }else if(event.path.split('_').last == 'unlocked.txt'){
-          persistValue(event.path.split('/').last.split('.').first, true);
+        }else if(event.path.split('/').last == 'hidden.cfg'){
+          persistValue('unhidden', true);
         }
       }
     });
@@ -620,10 +620,6 @@ class _BibliaWidgetState extends State<BibliaWidget>
 }
 
 Map<String, dynamic> loadPresets() {
-//    _presets = Map();
-//    _presets['Greek'] = ['English-Greek', 'LSK', 'Meletontas', 'MiddleLiddell'];
-//    _presets['Latin'] = ['CopCrit', 'Gradus'];
-//    _presets['Mix'] = ['Gradus', 'LSK'];
   return readValue('presets');
 }
 

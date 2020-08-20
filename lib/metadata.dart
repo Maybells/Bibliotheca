@@ -70,7 +70,7 @@ class BiblionMetadata {
     _outLang = _read("outLang");
     description = _read("description");
     hidden = _read('hidden') == 'true' ? true : false;
-    if(hidden && !((readValue('${id}_unlocked'))??false)){
+    if(hidden && !((readValue('unhidden'))??false)){
       active = false;
     }else{
       active = readValue('${id}_active') == null ? true : readValue('${id}_active');
