@@ -123,7 +123,7 @@ class _BibliaWidgetState extends State<BibliaWidget>
         else
           listenValue('unhidden', (value){
             setState(() {
-              meta.hidden = value;
+              meta.hidden = !value;
             });
           });
 
