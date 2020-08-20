@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_storage/get_storage.dart';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 import 'package:http/http.dart' as http;
+
+import 'metadata.dart';
 
 enum Language { English, Latin, Greek }
 
@@ -119,6 +122,8 @@ class Biblion {
       }
     } else if (command == 'title' || command == 't') {
       return 1;
+    } else if(command == 'extras' || command == 'e'){
+      return -1;
     } else if (isNumeric(command)) {
       return int.parse(command) + abbr + 1;
     } else {

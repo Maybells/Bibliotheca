@@ -1,16 +1,11 @@
-import 'dart:io';
-
 import 'package:Bibliotheca/help_widget.dart';
-import 'package:Bibliotheca/metadata.dart';
 import 'package:Bibliotheca/pickers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path_provider/path_provider.dart';
 import 'files.dart';
 
 class SettingsWidget extends StatefulWidget {
@@ -136,10 +131,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       iosTitle: 'Presets',
                       builder: (context) => PresetsWidget(),
                     ))),
-            _item(
-              title: platformText(context, 'Unlock extras'),
-              onTap: () => _unlockBook(context),
-            ),
             _title('Miscellaneous'),
             _item(
                 title: platformText(context, 'Help'),
@@ -165,8 +156,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 )
             ),
             _item(
-                title: platformText(context, 'Support the creator'),
-                onTap: () => launch('https://www.patreon.com/uraniae')),
+                title: platformText(context, 'Visit our website'),
+                onTap: () => launch('https://www.bibliothecauraniae.com')),
             //_item(title: platformText(context, 'About the app')),
           ],
         ),
@@ -192,117 +183,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     setState(() {
       _searchEmpty = false;
     });
-  }
-
-  _unlock(BuildContext context, String password) async {
-    List<BiblionMetadata> metadata = await Metadata.getAll();
-
-    for (BiblionMetadata meta in metadata) {
-      if (meta.password == password.toUpperCase()) {
-        persistValue('${meta.id}_unlocked', true);
-        String directory = (await getApplicationDocumentsDirectory()).path;
-        File unlocked = File('$directory/${meta.id}_unlocked.txt');
-        await unlocked.create();
-
-        showPlatformDialog(
-            context: context,
-            builder: (_) => PlatformAlertDialog(
-                  title: platformText(context, 'Book Unlocked'),
-                  content: platformText(
-                      context, '${meta.shortname} is now unlocked'),
-                  actions: <Widget>[
-                    PlatformDialogAction(
-                      child: Text('OK'),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
-                ));
-        return;
-      }
-    }
-    showPlatformDialog(
-        context: context,
-        builder: (_) => PlatformAlertDialog(
-              title: Text('Invalid Code'),
-              content:
-                  Text('The code you entered was incorrect. Please try again'),
-              actions: <Widget>[
-                PlatformDialogAction(
-                  child: Text('OK'),
-                  onPressed: () => Navigator.pop(context),
-                )
-              ],
-            ));
-  }
-
-  TextEditingController textController;
-
-  _unlockBook(BuildContext context) {
-    textController = TextEditingController();
-    bool filled = false;
-    showPlatformDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-          builder: (context, setState) => PlatformAlertDialog(
-                title: Text('Unlock Extras'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    RichText(
-                      text: TextSpan(children: [
-                        TextSpan(
-                            style: PlatformProvider.of(context).platform ==
-                                    TargetPlatform.iOS
-                                ? CupertinoTheme.of(context).textTheme.textStyle
-                                : Theme.of(context).textTheme.bodyText2,
-                            text:
-                                'Extra books can be unlocked using codes from our '),
-                        TextSpan(
-                            text: 'Patreon page',
-                            style: TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                launch('https://www.patreon.com/uraniae');
-                              }),
-                        TextSpan(
-                            style: PlatformProvider.of(context).platform ==
-                                TargetPlatform.iOS
-                                ? CupertinoTheme.of(context).textTheme.textStyle
-                                : Theme.of(context).textTheme.bodyText2,
-                            text:
-                            '.'),
-                      ]),
-                    ),
-                    PlatformTextField(
-                      controller: textController,
-                      onChanged: (value) {
-                        setState(() {
-                          textController.value = textController.value.copyWith(
-                            text: textController.text.toUpperCase(),
-                          );
-                          filled = value.length > 0;
-                        });
-                      },
-                    )
-                  ],
-                ),
-                actions: <Widget>[
-                  PlatformDialogAction(
-                    child: PlatformText('Cancel'),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  PlatformDialogAction(
-                    child: PlatformText('Unlock'),
-                    onPressed: filled
-                        ? () {
-                            _unlock(context, textController.text);
-                            textController.clear();
-                          }
-                        : null,
-                  ),
-                ],
-              )),
-    );
   }
 }
 
