@@ -345,7 +345,10 @@ class _ViewerWidgetState extends State<ViewerWidget> {
       }
       if (_controller.hasClients) {
         if (_getHistory() != null && _getHistory().isNotEmpty) {
-          _searchFor(_getHistory().first, false);
+          String lastSearched = _getHistory().first;
+          if(lastSearched != '/e' && lastSearched != '/extras'){
+            _searchFor(lastSearched, false);
+          }
         } else {
           _gotoPage(_biblion.initialPage());
         }
