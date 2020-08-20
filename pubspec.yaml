@@ -19,8 +19,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^0.4.3+2
-  firebase_storage: ^3.1.1
   cached_network_image: ^2.2.0+1
   photo_view: ^0.9.1
   unorm_dart: ^0.1.2
