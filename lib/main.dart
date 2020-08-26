@@ -21,7 +21,8 @@ final materialThemeData = ThemeData(
   // Switch color (and presumably other things too)
   accentColor: Colors.blue,
   // AppBar background color
-  appBarTheme: AppBarTheme(color: Colors.blue), //Color(0xff3F51B5)),
+  appBarTheme: AppBarTheme(color: Colors.blue),
+  //Color(0xff3F51B5)),
   // BottomBar selected color
   primaryColor: Colors.blue,
   // ???
@@ -52,19 +53,20 @@ final materialDarkThemeData = ThemeData(
 );
 
 final cupertinoThemeData = CupertinoThemeData(
-    primaryColor: CupertinoDynamicColor.withBrightness(color: CupertinoColors.black, darkColor: CupertinoColors.white),
+    primaryColor: CupertinoDynamicColor.withBrightness(
+        color: CupertinoColors.black, darkColor: CupertinoColors.white),
     textTheme: const CupertinoTextThemeData(
-      navActionTextStyle: const TextStyle(
-        color: CupertinoColors.white,
-      ),
+        navActionTextStyle: const TextStyle(
+          color: CupertinoColors.white,
+        ),
 //        navTitleTextStyle: const TextStyle(
 //          color: CupertinoColors.white,
 //          fontSize: 24.0,
 //        ),
         textStyle: const TextStyle(
-      color: CupertinoDynamicColor.withBrightness(
-          color: CupertinoColors.black, darkColor: CupertinoColors.white),
-    )));
+          color: CupertinoDynamicColor.withBrightness(
+              color: CupertinoColors.black, darkColor: CupertinoColors.white),
+        )));
 
 Image logo = Image.asset(
   'lib/assets/images/BibliothecaLogo.png',
@@ -86,7 +88,8 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
 
     return PlatformProvider(
-      initialPlatform: Platform.isIOS ? TargetPlatform.iOS : TargetPlatform.android,
+      initialPlatform:
+          Platform.isIOS ? TargetPlatform.iOS : TargetPlatform.android,
       builder: (context) => GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
@@ -186,29 +189,37 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
         trailingActions: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 16.0),
 //            child: PlatformIconButton(
 //              icon: Icon(Icons.help_outline),
 //              onPressed: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
 //            ),
-            child: Foundation.kDebugMode
-                ? GestureDetector(
-              onTap: () => Navigator.push(context, platformPageRoute(context: context, builder: (context) => HelpWidget())),
-              child: Icon(Icons.help_outline, color: Colors.white,),
-            )
-                : Icon(Icons.help_outline, color: Colors.white,),
-          ),
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                    context,
+                    platformPageRoute(
+                        context: context, builder: (context) => HelpWidget())),
+                child: Icon(
+                  Icons.help_outline,
+                  color: Colors.white,
+                ),
+              )),
         ],
-        leading: Icon(Icons.help_outline, color: Colors.transparent,),
+        leading: Icon(
+          Icons.help_outline,
+          color: Colors.transparent,
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: GestureDetector(
-                onTap: () => _changePlatform(context),
-                child: logo,
-              ),
+              child: Foundation.kDebugMode
+                  ? GestureDetector(
+                      onTap: () => _changePlatform(context),
+                      child: logo,
+                    )
+                  : logo,
             ),
             Text(
               widget.title,
