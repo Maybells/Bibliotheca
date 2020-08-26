@@ -5,7 +5,7 @@ import 'dart:ui';
 
 import 'package:Bibliotheca/pickers.dart';
 import 'package:Bibliotheca/metadata.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:simple_connectivity/simple_connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
