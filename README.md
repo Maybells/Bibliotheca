@@ -1,16 +1,29 @@
-# bibliotheca
+# Bibliotheca
 
-An application for viewing public domain scans of dictionaries and encyclopedias
+![Bibliotheca](https://bibliothecauraniae.com/wp-content/uploads/2019/02/PlayStoreLogo-300x300.png)
 
-## Getting Started
+Search a wide variety of public domain Greek and Latin dictionaries on or offline. Whether you’re reading, writing, researching, or are just curious about how to say ‘equus’ in Greek, this is the app for you.
 
-This project is a starting point for a Flutter application.
+Types of dictionary included:
 
-A few resources to get you started if this is your first Flutter project:
+– Latin to English
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+– Greek to English
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+– English to Latin
+
+– English to Greek
+
+– Latin to Latin
+
+– Greek to Greek
+
+– Latin to Greek
+
+– Greek to Latin
+
+… and more to come
+
+[![Get it on Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.bibliothecafactorum.lexica)
+
+[![Download on the App Store](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/640px-Download_on_the_App_Store_Badge.svg.png)](https://apps.apple.com/us/app/bibliothecae/id1529171087)
